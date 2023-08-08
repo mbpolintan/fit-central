@@ -1,0 +1,58 @@
+﻿@model DataAccess.Models.Member
+@using Kendo.Mvc.UI
+
+<div>
+    @Html.Label("Status: ")
+    @(Html.Kendo().DropDownList()
+        .Name("Status")
+        .DataTextField("Text")
+        .DataValueField("Value")
+        .HtmlAttributes(new { style = "width:30%;" })
+        .Events(e => e.Change("onChangeStatus"))
+        .BindTo(new List<SelectListItem>() {
+                new SelectListItem() {
+                    Text = "All",
+                    Value = "1"
+                },
+                new SelectListItem() {
+                    Text = "Active",
+                    Value = "2"
+                },
+                new SelectListItem() {
+                    Text = "Suspended",
+                    Value = "3"
+                }
+            })
+        .Value("1")
+     )
+</div>
+<br />
+<div>
+    @(Html.Kendo().Grid<DataAccess.Models.Member>()
+        .Name("gridMembers")
+        .Columns(columns =>
+        {
+            columns.Select().Width(50);
+            columns.Bound(p => p.DisplayName);
+        })
+        .ToolBar(t => t.Search())
+        .Navigatable()
+        .Sortable()
+        .Mobile()
+        .Pageable()
+        .Search(search => search.Field(f => f.DisplayName))
+        .PersistSelection()
+        .Events(ev => ev.Change("onChange"))
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .Model(model => model.Id(p => p.MemberId))
+            .Read(r => r.Url("/Challenges/ChallengeSetup?handler=ReadMembers").Data("forgeryToken"))
+        )
+    )
+</div>
+<style>
+    div.k-edit-form-container {
+        width: 800px;
+        height: auto;
+    }
+</style>

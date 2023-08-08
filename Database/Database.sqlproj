@@ -1,0 +1,244 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Name>Database</Name>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>4.1</ProjectVersion>
+    <ProjectGuid>{2b42a31d-86ae-4b92-adb8-4bb2fb92fc48}</ProjectGuid>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql130DatabaseSchemaProvider</DSP>
+    <OutputType>Database</OutputType>
+    <RootPath>
+    </RootPath>
+    <RootNamespace>StudioCentralDB</RootNamespace>
+    <AssemblyName>StudioCentralDB</AssemblyName>
+    <ModelCollation>1033,CI</ModelCollation>
+    <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
+    <DeployToDatabase>True</DeployToDatabase>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetLanguage>CS</TargetLanguage>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <SqlServerVerification>False</SqlServerVerification>
+    <IncludeCompositeObjects>True</IncludeCompositeObjects>
+    <TargetDatabaseSet>True</TargetDatabaseSet>
+    <DefaultCollation>SQL_Latin1_General_CP1_CI_AS</DefaultCollation>
+    <DefaultFilegroup>PRIMARY</DefaultFilegroup>
+    <SccProjectName>
+    </SccProjectName>
+    <SccProvider>
+    </SccProvider>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccLocalPath>
+    </SccLocalPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>bin\Release\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineDebug>false</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>bin\Debug\</OutputPath>
+    <BuildScriptName>$(MSBuildProjectName).sql</BuildScriptName>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineDebug>true</DefineDebug>
+    <DefineTrace>true</DefineTrace>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">11.0</VisualStudioVersion>
+    <!-- Default to the v11.0 targets path if the targets file for the current VS version is not found -->
+    <SSDTExists Condition="Exists('$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets')">True</SSDTExists>
+    <VisualStudioVersion Condition="'$(SSDTExists)' == ''">11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Condition="'$(SQLDBExtensionsRefPath)' != ''" Project="$(SQLDBExtensionsRefPath)\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <Import Condition="'$(SQLDBExtensionsRefPath)' == ''" Project="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v$(VisualStudioVersion)\SSDT\Microsoft.Data.Tools.Schema.SqlTasks.targets" />
+  <ItemGroup>
+    <Folder Include="Properties" />
+    <Folder Include="dbo\" />
+    <Folder Include="dbo\Tables\" />
+    <Folder Include="Snapshots" />
+    <Folder Include="dbo\Stored Procedures\" />
+    <Folder Include="dbo\Views\" />
+    <Folder Include="Security\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Build Include="dbo\Tables\AppModule.sql" />
+    <Build Include="dbo\Tables\MemberStatus.sql" />
+    <Build Include="dbo\Tables\MemberCategory.sql" />
+    <Build Include="dbo\Tables\AppGroup.sql" />
+    <Build Include="dbo\Tables\AppFunction.sql" />
+    <Build Include="dbo\Tables\Gender.sql" />
+    <Build Include="dbo\Tables\AppUser.sql" />
+    <Build Include="dbo\Tables\Scanner.sql" />
+    <Build Include="dbo\Tables\StudioUser.sql" />
+    <Build Include="dbo\Tables\StudioScanner.sql" />
+    <Build Include="dbo\Tables\Studio.sql" />
+    <Build Include="dbo\Tables\AppUserAccess.sql" />
+    <Build Include="dbo\Tables\Challenge.sql" />
+    <Build Include="dbo\Tables\Scan.sql" />
+    <Build Include="dbo\Tables\Member.sql" />
+    <Build Include="dbo\Tables\ChallengeType.sql" />
+    <Build Include="dbo\Tables\ChallengeStudio.sql" />
+    <Build Include="dbo\Tables\ChallengeMember.sql" />
+    <Build Include="dbo\Tables\ScanImage.sql" />
+    <Build Include="dbo\Tables\AppConfig.sql" />
+    <Build Include="dbo\Tables\AppGroupAccess.sql" />
+    <Build Include="dbo\Tables\ScansImport.sql" />
+    <Build Include="dbo\Tables\MBWebAPI.sql" />
+    <Build Include="dbo\Tables\MBInterface.sql" />
+    <Build Include="dbo\Tables\MBClientInfo.sql" />
+    <Build Include="dbo\Tables\SyncLog.sql" />
+    <Build Include="dbo\Tables\MBContract.sql" />
+    <Build Include="dbo\Tables\MBAutopayEvents.sql" />
+    <Build Include="dbo\Tables\MBMembershipProgram.sql" />
+    <Build Include="dbo\Tables\MBClientActiveMembership.sql" />
+    <Build Include="dbo\Tables\MBClientVisits.sql" />
+    <Build Include="dbo\Tables\SmsSetting.sql" />
+    <Build Include="dbo\Tables\EmailSetting.sql" />
+    <Build Include="dbo\Tables\Purchases.sql" />
+    <Build Include="dbo\Tables\PurchasedItems.sql" />
+    <Build Include="dbo\Tables\Payments.sql" />
+    <Build Include="dbo\Tables\MBAPILog.sql" />
+    <Build Include="dbo\Tables\Staff.sql" />
+    <Build Include="dbo\Tables\AuditLog.sql" />
+    <Build Include="dbo\Tables\CleanedScans.sql" />
+    <Build Include="dbo\Stored Procedures\uspInsertCleanedScans.sql" />
+    <Build Include="dbo\Views\vwScans.sql" />
+    <Build Include="dbo\Views\vwVisits.sql" />
+    <Build Include="dbo\Tables\DateFilter.sql" />
+    <Build Include="dbo\Views\vwVisitsReport.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetVisitsReport.sql" />
+    <Build Include="dbo\Tables\ProductSize.sql" />
+    <Build Include="dbo\Tables\ProductColor.sql" />
+    <Build Include="dbo\Tables\Product.sql" />
+    <Build Include="dbo\Views\vwScanBillable.sql" />
+    <Build Include="dbo\Views\vwChallengeMembers.sql" />
+    <Build Include="dbo\Views\vwIndividualScans.sql" />
+    <Build Include="dbo\Views\vwChallegeScans.sql" />
+    <Build Include="dbo\Views\vwProductDropDownList.sql" />
+    <Build Include="dbo\Views\vwScanForBilling.sql" />
+    <Build Include="dbo\Tables\ShoppingCart.sql" />
+    <Build Include="dbo\Tables\TrainingGymUser.sql" />
+    <Build Include="dbo\Tables\Manager.sql" />
+    <Build Include="dbo\Tables\GlobalTrainingGym.sql" />
+    <Build Include="dbo\Tables\GlobalStudio.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetClientVisits.sql" />
+    <Build Include="dbo\Tables\PushClientSalePayment.sql" />
+    <Build Include="dbo\Tables\PushClientSaleItem.sql" />
+    <Build Include="dbo\Tables\PushClientSale.sql" />
+    <Build Include="dbo\Tables\PushClientMembership.sql" />
+    <Build Include="dbo\Tables\PushClientDetail.sql" />
+    <Build Include="dbo\Tables\PushClientContract.sql" />
+    <Build Include="dbo\Tables\PushClientClassBooking.sql" />
+    <Build Include="dbo\Tables\ClientWebhook.sql" />
+    <Build Include="dbo\Tables\PaymentType.sql" />
+    <Build Include="dbo\Tables\PaymentSource.sql" />
+    <Build Include="dbo\Tables\PaymentMethodType.sql" />
+    <Build Include="dbo\Tables\PaymentMethod.sql" />
+    <Build Include="dbo\Tables\MBDirectDebitInfo.sql" />
+    <Build Include="dbo\Tables\MBClientCreaditCard.sql" />
+    <Build Include="dbo\Views\vwStartChallegeScansBillable.sql" />
+    <Build Include="dbo\Views\vwIndividualScansBillable.sql" />
+    <Build Include="dbo\Views\vwChallegeScansBillable.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetScanForBilling.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetChallengeStats.sql" />
+    <Build Include="dbo\Tables\PaymentTransactionLog.sql" />
+    <Build Include="dbo\Tables\PaymentTransaction.sql" />
+    <Build Include="dbo\Tables\PaymentGateway.sql" />
+    <Build Include="dbo\Views\vwChallengeMembersStartScans.sql" />
+    <Build Include="dbo\Views\vwChallengeMembersMidScans.sql" />
+    <Build Include="dbo\Views\vwChallengeMembersEndScans.sql" />
+    <Build Include="dbo\Stored Procedures\uspUpdateChallengeScans.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetMemberScanInChallenge.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetVisitsInChallengePerWeek.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetChallengeLeaderBoard.sql" />
+    <Build Include="dbo\Tables\WeightedSystem.sql" />
+    <Build Include="dbo\Tables\ScoringSystem.sql" />
+    <Build Include="dbo\Tables\PointsSystem.sql" />
+    <Build Include="dbo\Tables\PersistedGrants.sql" />
+    <Build Include="dbo\Tables\DeviceCodes.sql" />
+    <Build Include="dbo\Tables\AspNetUserTokens.sql" />
+    <Build Include="dbo\Tables\AspNetUsers.sql" />
+    <Build Include="dbo\Tables\AspNetUserRoles.sql" />
+    <Build Include="dbo\Tables\AspNetUserLogins.sql" />
+    <Build Include="dbo\Tables\AspNetUserClaims.sql" />
+    <Build Include="dbo\Tables\AspNetRoles.sql" />
+    <Build Include="dbo\Tables\AspNetRoleClaims.sql" />
+    <Build Include="dbo\Tables\__EFMigrationsHistory.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetTotalPayment.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetMemberContract.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetMemberChallenges.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetClientPurchases.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetActiveMembership.sql" />
+    <Build Include="dbo\Tables\VisitAchievement.sql" />
+    <Build Include="dbo\Tables\MemberAchievementReward.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetMemberProfile.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetChallengeMember.sql" />
+    <Build Include="dbo\Tables\ReferralType.sql" />
+    <Build Include="dbo\Tables\ShirtSize_1.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetPaymentReconciliation.sql" />
+    <Build Include="dbo\Stored Procedures\uspChallengeMemberScans.sql" />
+    <Build Include="dbo\Tables\SendItem.sql" />
+    <Build Include="dbo\Tables\Recipient.sql" />
+    <Build Include="dbo\Tables\MessageType.sql" />
+    <Build Include="dbo\Tables\Inbox.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetMessageList.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetMessageThread.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetLatestReplySMS.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetChallengeGenderStats.sql" />
+    <Build Include="dbo\Tables\ShoppingCartItem.sql" />
+    <Build Include="dbo\Tables\ClassStaff.sql" />
+    <Build Include="dbo\Tables\ClassSchedule.sql" />
+    <Build Include="dbo\Tables\ClassResource.sql" />
+    <Build Include="dbo\Tables\ClassLocationImageUrl.sql" />
+    <Build Include="dbo\Tables\ClassLocationAmenities.sql" />
+    <Build Include="dbo\Tables\ClassLocation.sql" />
+    <Build Include="dbo\Tables\ClassDescriptionSessionType.sql" />
+    <Build Include="dbo\Tables\ClassDescriptionProgramContentFormat.sql" />
+    <Build Include="dbo\Tables\ClassDescriptionProgram.sql" />
+    <Build Include="dbo\Tables\ClassDescriptionLevel.sql" />
+    <Build Include="dbo\Tables\ClassDescription.sql" />
+    <Build Include="dbo\Tables\Class.sql" />
+    <Build Include="dbo\Views\vwSignedInVisits.sql" />
+    <Build Include="dbo\Tables\ValidateVisit.sql" />
+    <Build Include="dbo\Tables\PushSiteStaff.sql" />
+    <Build Include="dbo\Tables\PushSiteLocation.sql" />
+    <Build Include="dbo\Tables\PushSiteClassScheduleDOW.sql" />
+    <Build Include="dbo\Tables\PushSiteClassSchedule.sql" />
+    <Build Include="dbo\Tables\PushSiteClassResource.sql" />
+    <Build Include="dbo\Tables\PushSiteClassDescription.sql" />
+    <Build Include="dbo\Tables\PushSiteClass.sql" />
+    <Build Include="dbo\Tables\MBClassSchedule.sql" />
+    <Build Include="dbo\Tables\ChallengeBooking.sql" />
+    <Build Include="dbo\Tables\ChallengeAppointment.sql" />
+    <Build Include="dbo\Views\vwClasses.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetUnsyncedSiteClassSchedule.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetUnsyncedSiteClasses.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetUnsyncedSiteClassDescription.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetUnsyncedClientMembership.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetUnsyncedClientDetails.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetUnsyncedClientContracts.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetUnsyncedBookings.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetStartDateVisit.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetMemberWeeklyVisits.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetMemberChallengeScore.sql" />
+    <Build Include="dbo\Stored Procedures\uspGetEndDateVisit.sql" />
+    <Build Include="dbo\Stored Procedures\uspDeleteVisitsToValidate.sql" />
+    <Build Include="dbo\Stored Procedures\uspCustomMemberGetVisits.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Snapshots\StudioCentralDB_20200702_14-51-43.dacpac" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,11 @@
+﻿@model DataAccess.ViewModels.ScanForBillingViewModel
+@using Kendo.Mvc.UI
+
+@(Html.Kendo().ComboBoxFor(model => model)
+        //.HtmlAttributes(new { required = "required", style = "width:100%;", data_value_primitive = "true" })
+        .Filter(FilterType.Contains)
+        .DataTextField("Name")
+        .DataValueField("ProducId")
+        .BindTo((System.Collections.IEnumerable)ViewData["product"])
+    )
+

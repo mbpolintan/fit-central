@@ -1,0 +1,203 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using System.Globalization
+@using DataService.Utilities;
+@inject IAuthorizationService AuthorizationService
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="max-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Studio Central</title>
+    <link rel="icon" type="image/png" href="~/favicon.ico">
+
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="https://kendo.cdn.telerik.com/2019.3.1023/styles/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+    @*<link href="~/lib/CustomTheme/SC001Theme.css" rel="stylesheet" type="text/css" />*@
+    <link href="~/lib/CustomTheme/SC002Theme.css" rel="stylesheet" type="text/css" />
+    <link href="~/lib/iziToast/dist/css/iziToast.min.css" rel="stylesheet" />
+    <link href="~/lib/fontawesome/css/all.css" rel="stylesheet">
+    <link href="https://cdn.syncfusion.com/ej2/material.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" />
+
+    <script src="~/lib/webcamjs-master/webcam.js"></script>
+    <script src="~/js/signalr/dist/browser/signalr.min.js"></script>
+    <script src="~/lib/kendo-ui/js/jquery.min.js"></script>
+    <script src="~/lib/kendo-ui/js/jszip.min.js"></script>
+    <script src="~/lib/kendo-ui/js/kendo.all.min.js"></script>
+    <script src="~/lib/kendo-ui/js/kendo.aspnetmvc.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/lib/iziToast/dist/js/iziToast.min.js"></script>
+    <script src="https://cdn.syncfusion.com/ej2/dist/ej2.min.js"></script>
+    <script src=@Url.Content("~/lib/kendo-ui/js/cultures/kendo.culture.en-AU.min.js")></script>
+    <script type="text/javascript">
+        //set culture of the Kendo UI
+        kendo.culture("en-AU");// change the culture
+    </script>
+    <script src="~/js/site.js"></script>
+
+    @{ CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-AU"); }
+
+</head>
+<body class="k-content wrapper">
+    <header class="k-content k-header">
+        <nav class="k-content k-header">
+            <table width="100%">
+                <tr>
+                    <td align="center" valign="middle">
+                        <a class="k-image" asp-area="" asp-page="/Index">
+                            @if (User.Identity.Name != null)
+                            {
+                                <img src="~/images/scm-light-v2.png" style="width:5vw;height:auto" />
+
+                            }
+                            else
+                            {
+                                <img src="~/images/scm-light-v2.png" style="width:15vw;height:auto" />
+                            }
+                        </a>
+                    </td>
+                    <td align="left" valign="bottom">
+                        @if (User.Identity.Name != null)
+                        {
+
+                            var groupId = UserUtility.GetGroupId(User);
+
+                            bool showGlobalAdmin = (groupId == (int)DataAccess.Enums.AppGroup.GlobalAdministrator) ? true : false;
+                            bool showStudioAdmin = (groupId != (int)DataAccess.Enums.AppGroup.StudioManager) ? true : false;
+
+                            @(Html.Kendo().Menu()
+                                .Name("Menu")
+                                .Items(items =>
+                                {
+                                    items.Add()
+                                    .Text("Members")
+                                    .Items(innerChildren =>
+                                    {
+                                        innerChildren.Add()
+                                        .Text("Members Profile")
+                                        .Url("~/Members/MemberProfile");
+                                        innerChildren.Add()
+                                        .Text("Members Communication")
+                                        .Url("~/Members/MembersComms");
+                                    });
+
+                                    items.Add()
+                                    .Text("Challenges")
+                                    .Url("~/Challenges/ChallengeSetup");
+                                    //.Items(innerChildren =>
+                                    //{
+                                    //    innerChildren.Add()
+                                    //    .Text("Challenge Setup")
+                                    //    .Url("~/Challenges/ChallengeSetup");
+                                    //    //innerChildren.Add()
+                                    //    //.Text("Challenge Leaderboards")
+                                    //    //.Url("~/Challenges/ChallengeLeaderBoard");
+                                    //});
+
+                                    items.Add()
+                                    .Text("Scans")
+                                    .Items(innerChildren =>
+                                    {
+                                        innerChildren.Add()
+                                        .Text("Import Scans")
+                                        .Url("~/Scans/ImportScans");
+                                        innerChildren.Add()
+                                        .Text("Scans")
+                                        .Url("~/Scans/ReportScans");
+                                    });
+
+                                    items.Add()
+                                    .Text("Reports")
+                                     .Items(innerChildren =>
+                                     {
+                                         innerChildren.Add()
+                                         .Text("Member")
+                                         .Url("~/Reports/MemberReport");
+                                         innerChildren.Add()
+                                         .Text("Visits")
+                                         .Url("~/Reports/VisitReport");
+
+                                     });
+
+                                    items.Add()
+                                    .Text("Billing")
+                                     .Items(innerChildren =>
+                                     {
+                                         innerChildren.Add()
+                                         .Text("Scans")
+                                         .Url("~/Billing/ScanBilling");
+                                         innerChildren.Add()
+                                         .Text("Reconciliation")
+                                         .Url("~/Billing/Reconciliation");
+
+                                     });
+
+                                    items.Add()
+                                   .Text("Studio Admin")
+                                   .Visible(showStudioAdmin)
+                                   .Items(innerChildren =>
+                                   {
+                                       innerChildren.Add()
+                                       .Text("Manager Administration")
+                                       .Url("~/StudioAdmin/ManagerAdmin");
+                                       innerChildren.Add()
+                                       .Text("Studio Locations")
+                                       .Url("~/StudioAdmin/StudioLocations");
+                                       innerChildren.Add()
+                                       .Text("Challenge Management")
+                                       .Url("~/StudioAdmin/ChallengeManagement");
+                                       innerChildren.Add()
+                                       .Text("Scoring Template")
+                                       .Url("~/StudioAdmin/ScoringTemplate");
+                                       innerChildren.Add()
+                                       .Text("Clubs Management")
+                                       .Url("~/StudioAdmin/ClubsManagement");
+                                       innerChildren.Add()
+                                       .Text("Scanner Management")
+                                       .Url("~/StudioAdmin/ScannerManagement");
+                                       innerChildren.Add()
+                                       .Text("Billing Configuration")
+                                       .Url("~/StudioAdmin/BillingConfig");                                      
+                                   });
+
+                                    items.Add()
+                                    .Text("Global Admin")
+                                    .Visible(showGlobalAdmin)
+                                    .Items(innerChildren =>
+                                    {
+                                        innerChildren.Add()
+                                        .Text("User Administration")
+                                        .Url("~/GlobalAdmin/UserAdmin");
+                                        innerChildren.Add()
+                                        .Text("Parent Studio Management")
+                                        .Url("~/GlobalAdmin/TrainingGym");
+
+                                    });
+
+                                })
+                            )
+                        }
+                    </td>
+                    <td align="center" valign="baseline">
+                        <partial name="_LoginPartial" />
+                    </td>
+                </tr>
+            </table>
+        </nav>
+    </header>
+    <main role="main">
+        <div class="container text-center" style="padding:0;">
+            @RenderBody()
+        </div>
+    </main>
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2020 - F45 Challenge - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>
+    @RenderSection("Scripts", required: false)
+    <ejs-scripts></ejs-scripts>
+</body>
+</html>
+

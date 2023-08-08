@@ -1,0 +1,61 @@
+{
+  "_from": "@syncfusion/ej2-treegrid@~18.2.47",
+  "_id": "@syncfusion/ej2-treegrid@18.2.47",
+  "_inBundle": false,
+  "_integrity": "sha512-wImqDdT2P+D/gsdSUuxsIrnS2b+x1Xv/37ptORlR+pa6xVSvHwGcMSQsSu5LW8dhfhSTNt3ulUa1SydS6sGuZQ==",
+  "_location": "/@syncfusion/ej2-treegrid",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-treegrid@~18.2.47",
+    "name": "@syncfusion/ej2-treegrid",
+    "escapedName": "@syncfusion%2fej2-treegrid",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.47",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.47"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2",
+    "/@syncfusion/ej2-gantt"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-treegrid/-/ej2-treegrid-18.2.47.tgz",
+  "_shasum": "20c7157a64107ad81e0ea1bd0f45a8c09f70d909",
+  "_spec": "@syncfusion/ej2-treegrid@~18.2.47",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bugs": {
+    "url": "https://github.com/syncfusion/ej2-treegrid/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.47",
+    "@syncfusion/ej2-data": "~18.2.44",
+    "@syncfusion/ej2-grids": "~18.2.47",
+    "@syncfusion/ej2-popups": "~18.2.46"
+  },
+  "deprecated": false,
+  "description": "Essential JS 2 TreeGrid Component",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-treegrid.es2015.js",
+  "homepage": "https://github.com/syncfusion/ej2-treegrid#readme",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "ej2-treegrid"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-treegrid.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-treegrid",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syncfusion/ej2-treegrid.git"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.47"
+}

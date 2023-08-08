@@ -1,0 +1,58 @@
+{
+  "_from": "@syncfusion/ej2-office-chart@~18.2.44",
+  "_id": "@syncfusion/ej2-office-chart@18.2.44",
+  "_inBundle": false,
+  "_integrity": "sha512-NbDQYJUG72WgYFhfIzQPbh11ZKtOg84ZfEidnmxsO6DhBqXAhH/GST1ziZQrZIo9ORosgVFmusgsOsTLuUldkg==",
+  "_location": "/@syncfusion/ej2-office-chart",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-office-chart@~18.2.44",
+    "name": "@syncfusion/ej2-office-chart",
+    "escapedName": "@syncfusion%2fej2-office-chart",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.44",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.44"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2",
+    "/@syncfusion/ej2-documenteditor"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-office-chart/-/ej2-office-chart-18.2.44.tgz",
+  "_shasum": "a21b639d997d91ff0e66b791a293bb8bd543c101",
+  "_spec": "@syncfusion/ej2-office-chart@~18.2.44",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bugs": {
+    "url": "https://github.com/syncfusion/ej2-office-chart/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-charts": "~18.2.44"
+  },
+  "deprecated": false,
+  "description": "Essential JS 2 Component",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-office-chart.es2015.js",
+  "homepage": "https://github.com/syncfusion/ej2-office-chart#readme",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "ej2-office-chart"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-office-chart.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-office-chart",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syncfusion/ej2-office-chart.git"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.44"
+}

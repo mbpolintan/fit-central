@@ -1,0 +1,7 @@
+﻿@model DataAccess.Models.GlobalTrainingGym
+@using Kendo.Mvc.UI
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.GymName))</i>
+    @(Html.TextBoxFor(model => model.GymName, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:GymName" }))
+</label>

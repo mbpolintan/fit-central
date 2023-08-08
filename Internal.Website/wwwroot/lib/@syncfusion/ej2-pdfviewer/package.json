@@ -1,0 +1,74 @@
+{
+  "_from": "@syncfusion/ej2-pdfviewer@~18.2.47",
+  "_id": "@syncfusion/ej2-pdfviewer@18.2.47",
+  "_inBundle": false,
+  "_integrity": "sha512-OnxpTfBR2/t4s13CmQkxO+4o/W6L11qnYhXdGPi5KBo7EyXPWVjsR4AB1cc1/L7E6rktTLjLRaaorevOnFKYUg==",
+  "_location": "/@syncfusion/ej2-pdfviewer",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-pdfviewer@~18.2.47",
+    "name": "@syncfusion/ej2-pdfviewer",
+    "escapedName": "@syncfusion%2fej2-pdfviewer",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.47",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.47"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-pdfviewer/-/ej2-pdfviewer-18.2.47.tgz",
+  "_shasum": "9182e4026d9cba12f7bad6ca88628df2a03062d1",
+  "_spec": "@syncfusion/ej2-pdfviewer@~18.2.47",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bugs": {
+    "url": "https://github.com/syncfusion/ej2-pdfviewer/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.47",
+    "@syncfusion/ej2-buttons": "~18.2.44",
+    "@syncfusion/ej2-calendars": "~18.2.44",
+    "@syncfusion/ej2-data": "~18.2.44",
+    "@syncfusion/ej2-drawings": "~18.2.44",
+    "@syncfusion/ej2-dropdowns": "~18.2.47",
+    "@syncfusion/ej2-inplace-editor": "~18.2.45",
+    "@syncfusion/ej2-inputs": "~18.2.47",
+    "@syncfusion/ej2-lists": "~18.2.46",
+    "@syncfusion/ej2-navigations": "~18.2.47",
+    "@syncfusion/ej2-notifications": "~18.2.44",
+    "@syncfusion/ej2-popups": "~18.2.46",
+    "@syncfusion/ej2-richtexteditor": "~18.2.46"
+  },
+  "deprecated": false,
+  "description": "Essential JS 2 PDF viewer Component",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-pdfviewer.es2015.js",
+  "homepage": "https://github.com/syncfusion/ej2-pdfviewer#readme",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "ej2-pdfviewer",
+    "web-components",
+    "JavaScript",
+    "TypeScript",
+    "viewer",
+    "annotation"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-pdfviewer.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-pdfviewer",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syncfusion/ej2-pdfviewer.git"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.47"
+}

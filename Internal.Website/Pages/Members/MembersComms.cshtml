@@ -1,0 +1,686 @@
+﻿@page
+@model Internal.Website.MembersCommsModel
+@using DataAccess.ViewModels
+@{ ViewData["Title"] = "Members Communication"; }
+
+<head>
+    <link rel="stylesheet" href="~/css/memberlisting.css" />
+</head>
+<div class="bg-light">
+    <div class="col text-left">
+        <h4 class="k-primary">
+            <small class="k-text-primary">@ViewData["Title"]</small>
+        </h4>
+    </div>
+    <div class="col-md-12 text-left" style="padding:0.5em">
+        @Html.Label("Studios: ")
+        @(Html.Kendo().DropDownList()
+                .Name("Studio")
+                .DataTextField("StudioName")
+                .DataValueField("StudioId")
+                .Events(e => e.Change("change"))
+                .BindTo((System.Collections.IEnumerable)ViewData["Studios"])
+                .HtmlAttributes(new { style = "width:15%;" }))
+
+    </div>
+    <br />
+    <div id="menu-list" class="message col-md-1" style="padding:1em">
+        <div>
+            <button type="button" class="k-primary k-button" id="composeEmail" data-toggle="modal" data-target="#ComposeEmailModal" style="width:100%">
+                <i class="fas fa-plus"></i>&nbsp;Compose
+            </button>
+        </div>
+        <br />
+        <div>
+            <button type="button" class="k-primary k-button" id="inbox" style="width:100%">
+                <i class="fas fa-inbox"></i>&nbsp;Inbox
+            </button>
+        </div>
+        <br />
+        <div>
+            <button type="button" class="k-primary k-button" id="sentItems" style="width:100%">
+                <i class="fas fa-paper-plane"></i>&nbsp;Sent Items
+            </button>
+        </div>
+    </div>
+    <div id="message-list" class="message col-md-3" style="padding-top:1em">
+        <div class="form-group" style="height:6vh;">
+            <span id="messageClassification"></span>
+            @Html.AntiForgeryToken()
+            @(Html.Kendo().TextBox()
+                     .Name("searchBox")
+                    .HtmlAttributes(new { placeholder = "Search here..", style = "width:100%" }))
+        </div>
+        <div class="form-group" style="padding:1em 0;">
+            @(Html.Kendo().ListView<MessageListViewModel>()
+                .Name("MessageList")
+                .TagName("div")
+                .Scrollable(ListViewScrollableMode.Endless)
+                .HtmlAttributes(new { style = "height:70vh;overflow-y: hidden;" })
+                .Events(e => e.DataBound("onListDataBound").Change("onCriteriaChange"))
+                .ClientTemplateId("messageItemTemplate")
+                .Selectable(s => s.Mode(ListViewSelectionMode.Single))
+                .DataSource(dataSource => dataSource.Ajax()
+                    .Read(r => r.Url("").Data("forgeryToken"))))            
+        </div>
+    </div>
+    <div id="message-details" class="message col col-md-8" style="padding-top:1em">
+        <div class="form-group" style="height:6vh;">
+            <div id="top-messageInfo" class="text-left col-md-8"></div>
+            @*<div id="top-messageButton" class="text-left col-md-4  text-right">
+                @(Html.Kendo().Button()
+                    .Name("ReplyMessage")
+                    .HtmlAttributes(new { type = "button", @class = "k-primary" })
+                    .Content("Reply")
+                    .IconClass("k-icon k-i-undo")
+                    .Events(ev => ev.Click("onReplyMessage")))              
+            </div>*@
+        </div>
+
+        <div class="form-group message-group" style="padding:1em;">
+            <div id="message-content" class="text-left overflow-auto">
+            </div>
+            <div class="input-group mb-3" id="message-box">
+                <textarea type="text" class="form-control" placeholder="Type you message here..." aria-label="Message" aria-describedby="basic-addon2" id="editor-field"> </textarea>
+                <div class="input-group-append">                
+                    <button class="k-button k-primary" type="button" onclick="sendReplyMessage()"><span class="fas fa-paper-plane"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Modal *@
+<div class="modal fade" id="ComposeEmailModal" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Compose Email</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form role="form" id="newModalForm" autocomplete="off">
+                <div class="modal-body">
+                    <div class="col-md-12 profile form-group">
+                        <div class="text-left form-group">
+                            <div class="col-md-3" style="float:left;overflow:hidden;">
+                                @Html.Label("Message Type: ")
+                                @(Html.Kendo().DropDownList()
+                                .Name("MessageType")
+                                .DataValueField("MessageTypeId")
+                                .DataTextField("Description")
+                                .Events(e => e.Change("onChangeMessageType"))
+                                .BindTo((System.Collections.IEnumerable)ViewData["messageType"])
+                                .HtmlAttributes(new { style = "width:100%;" }))
+                            </div>
+                            <div class="col-md-3" style="float:left;overflow:hidden;">
+                                @Html.Label("Reciepient Type: ")
+                                @(Html.Kendo().DropDownList()
+                                    .Name("ReciepientType")
+                                    .DataValueField("Value")
+                                    .DataTextField("Text")
+                                    .Events(e => e.Change("onChangeReciepients"))
+                                    .BindTo(new List<SelectListItem>() {
+                                        new SelectListItem() { Text = "Custom", Value = "1"},
+                                        new SelectListItem() { Text = "via Status", Value = "2"}
+                                    })
+                                    .HtmlAttributes(new { style = "width:100%;" }))
+                            </div>
+                            <div class="col-md-3" id="statusList" style="float:left;overflow:hidden;visibility:hidden;">
+                                &nbsp;@Html.Label("Status: ")
+                                @(Html.Kendo().DropDownList()
+                                   .Name("Status")
+                                   .DataTextField("Status")
+                                   .DataValueField("MemberStatusId")
+                                   .BindTo((System.Collections.IEnumerable)ViewData["Status"])
+                                   .HtmlAttributes(new { style = "width:100%;" }))
+                            </div>
+                        </div>
+                        <br />
+                        <div id="customRecipients" class="form-group">
+                            @(Html.Kendo().MultiSelectFor(m => m.CustomEmail.Recipients)
+                            .Placeholder("Select recipient here...")
+                            .DataTextField("DisplayName")
+                            .DataValueField("MemberId")
+                            .HtmlAttributes(new { style = "" })
+                            .BindTo((System.Collections.IEnumerable)ViewData["members"]))
+                        </div>
+                        <br />
+                        <div id="messageSubject" class="form-group">
+                            @(Html.Kendo().TextBox().Name("Subject")
+                             .HtmlAttributes(new { style = "width: 100%", @class = "profile-detail", @autocomplete = "off", required = "required", @placeholder = "Enter subject here" }))
+                        </div>
+                        <div class="form-group">
+                            @(Html.Kendo().EditorFor(m => m.CustomEmail.Message)
+                            .HtmlAttributes(new { style = "height:50vh", @class = "bg-white k-text-primary" })
+                            .Encoded(false)
+                            .Tools(tools => tools
+                                .Formatting()
+                                .Bold().Italic().Underline().Strikethrough()
+                                .JustifyLeft().JustifyCenter().JustifyRight().JustifyFull()
+                                .InsertUnorderedList().InsertOrderedList()
+                                .Outdent().Indent()))
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    @(Html.Kendo().Button()
+                    .Name("SendMessage")
+                    .HtmlAttributes(new { type = "button", @class = "k-primary" })
+                    .Content(" Send")
+                    .IconClass("fas fa-paper-plane")
+                    .Events(ev => ev.Click("sendMessage")))
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* Kendo Reply window *@
+<div id="replyWindow">
+    <div class="form-group">
+        <div id="messageReplySubject" class="form-group">
+            @(Html.Kendo().TextBox().Name("replySubject")
+              .HtmlAttributes(new { style = "width: 100%", @class = "profile-detail", @autocomplete = "off", required = "required", @placeholder = "Enter subject here" }))
+        </div>
+    </div>
+    <div class="form-group">
+        @(Html.Kendo().Editor()
+        .Name("replyEditor")
+        .HtmlAttributes(new { style = "height:50vh", @class = "bg-white k-text-primary" })
+        .Encoded(false)
+        .Tools(tools => tools
+            .Formatting()
+            .Bold().Italic().Underline().Strikethrough()
+            .JustifyLeft().JustifyCenter().JustifyRight().JustifyFull()
+            .InsertUnorderedList().InsertOrderedList()
+            .Outdent().Indent()))
+    </div>
+    <div class="form-group text-right">
+        @(Html.Kendo().Button()
+        .Name("SendReplayMessage")
+        .HtmlAttributes(new { type = "button", @class = "k-primary" })
+        .Content("Send")
+        .IconClass("fas fa-paper-plane")
+        .Events(ev => ev.Click("sendReplyMessage")))
+    </div>
+</div>
+
+@* Templates *@
+<script type="text/x-kendo-tmpl" id="messageItemTemplate">
+    <div class="message-list">
+        <div class="member-wrapper">
+            <dl class="member-list-details">
+                <dt class="sender-reciever">
+                    # if (MessageTypeId == 1) { #
+                    <span class="fa fa-mobile-alt"></span>
+                    # }else{ #
+                    <span class="k-icon k-i-email"></span>
+                    # } #
+                    &nbsp;#:DisplayName# &nbsp; | &nbsp; #:Subject#
+                </dt>
+            </dl>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-kendo-tmpl" id="top-messageInfoTemplate">
+    <div class="text-left">
+        <img src="@(Url.Content("#=PhotoUrl#"))" class="member-details-image" />
+        <dl class="member-bio-details">
+            <dt class="subject">#:Subject#</dt>
+            <dd class="fromTo"></dd>
+            <dd class="phone"><span class="fa fa-mobile-alt"></span>&nbsp;#:SenderMobilePhone#</dd>
+            <dd class="email"><span class="k-icon k-i-email"></span>&nbsp;#:EmailAddress#</dd>
+        </dl>
+    </div>
+</script>
+
+<script type="text/javascript">
+    var displayName = '';
+    var kendoWindowManager = {
+        InitKendoWindow: function () {
+            $('#replyWindow').kendoWindow({
+                title: "",
+                width: "60%",
+                modal: true,
+                actions: ["Close"],
+                visible: false
+            });
+        }
+    }
+    var messageTypeId = 0;
+    var selectedMessage;
+    var senderEmail = '';
+    var senderNumber = '';
+    var studioId = 0;
+    var windowTitle = '';  
+
+    $(document).ready(function () {
+        var studioName = '@Model.SelectedStudio.StudioName';
+        studioId = '@Model.SelectedStudio.StudioId';
+
+        var dropdownlist = $("#Studio").data("kendoDropDownList");
+        dropdownlist.text(studioName);
+        dropdownlist.value(studioId);
+        dropdownlist.trigger("change");
+
+        kendoWindowManager.InitKendoWindow();
+
+        $("#searchBox").on("input", function (e) {
+
+            var listView = $("#MessageList").data("kendoListView");
+            var sarchString = $(this).val();
+            listView.dataSource.filter({ field: "Name", operator: "contains", value: sarchString });
+        });
+
+        $("#inbox").on('click', function () {
+            clearValues();
+            $("#message-box").show();
+            $("#messageClassification").text("Inbox");
+            $(".message #message-content").css("height", "90%");
+            var studio = $("#Studio").data("kendoDropDownList");
+            studioId = studio.value();
+            var listView = $("#MessageList").data("kendoListView");
+            listView.dataSource.transport.options.read.url = "/Members/MembersComms?handler=ReadInbox&studioId=" + studioId;
+            listView.dataSource.read();
+        });
+
+        $("#sentItems").on('click', function () {
+            clearValues();
+            $("#messageClassification").text("Sent Items");  
+            $(".message #message-content").css("height", "110%");
+            $("#message-box").hide();
+            var studio = $("#Studio").data("kendoDropDownList");
+            studioId = studio.value();
+            var listView = $("#MessageList").data("kendoListView");
+            listView.dataSource.transport.options.read.url = "/Members/MembersComms?handler=ReadSentItems&studioId=" + studioId;
+            listView.dataSource.read();
+        });
+
+        $('#composeEmail').on('click', function () {
+            $("#CustomEmail_Message").data('kendoEditor').value('');
+            onChangeMessageType();
+        });
+
+        $("body").on('click', ".forwardsms", function () {  
+            $('#ComposeEmailModal').modal('show');
+            $("#ComposeEmailModal").find('.modal-title').text("FW: ");  
+            $("#MessageType").data("kendoDropDownList").value(messageTypeId);
+            onChangeMessageType();          
+            var messageContent = messageTypeId == 1
+                ? $(this).closest('.container-message').children('p').text()
+                : $('#message-content').html();
+            $("#CustomEmail_Message").data('kendoEditor').value(messageContent);
+        });
+    });
+
+    function addCustomDataTag(tagValue) {
+        var editor = $("#CustomEmail_Message").data("kendoEditor");
+        editor.exec("insertHtml", { value: tagValue });
+    }
+
+    function appendMessage(photoUrl, bodyContent, messageDateTime, displayName, isAdmin, messageTypeId) {
+        var html = isAdmin == true
+            ?   messageTypeId == 1 ? '<div class="col-md-5"></div><div class="container-message col-md-7 darker-container"><img src="/images/scm-light-v2.png" alt="Avatar"  class="right"><p class="text-right">' +
+                    bodyContent + '</p><a href="#" title="Forward SMS" class="forwardsms"><span class="k-icon k-i-redo time-left"></span></a><br /><span class="time-left">' +
+                    messageDateTime + '</span><br /><span class="time-left">' +
+                    displayName + '</div>'
+                : '<div><a href = "#" title = "Forward SMS" class="forwardsms"> <span class="k-icon k-i-redo time-right"></span></a>' + bodyContent + '</div><hr>'
+            :'<div class="container-message col-md-7"><img src="' + photoUrl + '" alt="Avatar"><p>' +
+            bodyContent + '</p><a href="#" title="Forward SMS" class="forwardsms"><span class="k-icon k-i-redo time-right"></span></a><br /><span class="time-right">' +
+            messageDateTime + '</span><br /><span class="time-right">' +
+            displayName + '</div>';
+
+        $("#message-content").append(html).show('slow');
+        scrollToBottom();
+    }
+
+    function change() {
+        var studio = $("#Studio").data("kendoDropDownList");
+        studioId = studio.value();
+        clearValues();
+
+        $("#messageClassification").text("Inbox");
+        var listView = $("#MessageList").data("kendoListView");
+        listView.dataSource.transport.options.read.url = "/Members/MembersComms?handler=ReadInbox&studioId=" + studioId;
+        listView.dataSource.read();
+    }
+
+    function clearValues() {
+        windowTitle = '';
+        $('.fromTo').html('');
+        $(".subject").html('');
+        $('.phone').html('');
+        $(".email").html('');
+        $("#message-content").html('');
+        $("#replySubject").val('');
+        $("#replyEditor").val('');
+        $(".member-details-image").attr("src", "");
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+
+            iziToast.error({
+                title: 'Error',
+                message: message,
+                position: 'center'
+            });
+        }
+    }
+
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function getReplyMessage(data) {
+        
+        if (selectedMessage.SenderMobilePhone == data.mobilePhone) {
+            appendMessage(selectedMessage.PhotoUrl, data.bodyContent, data.messageDateTime, selectedMessage.displayName, false, 1)
+        }
+    };
+
+    function onCriteriaChange() {
+        var messageList = $("#MessageList").data("kendoListView"),
+            message = messageList.dataSource.getByUid(messageList.select().attr("data-uid")),
+            template = kendo.template($("#top-messageInfoTemplate").html());
+
+        selectedMessage = message;
+        messageTypeId = message.MessageTypeId;
+        displayName = message.DisplayName;
+        senderNumber = message.SenderMobilePhone;
+        senderEmail = message.EmailAddress;
+
+        $("#top-messageInfo").html(template(message));
+        $("#message-content").html('');
+        $(".container-message").remove();
+
+        message.IsAnonymousSender ? $(".fromTo").text("From : Anonymous") : $(".fromTo").text(message.Name);
+        message.MessageTypeId == 1 ? $(".email").hide() : $(".phone").hide();
+
+        $.ajax({
+            type: "POST",
+            url: "/Members/MembersComms?handler=ReadMessageThread",
+            data: { studioId: studioId, senderName: displayName, classification: message.Classification },
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded",
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            success: function (result) {
+                var messageLength = result.Data.length;
+                $(".container-message").remove();
+                for (x = 0; x < messageLength; x++) {
+                    var photoUrl = result.Data[x].PhotoUrl;
+                    var bodyContent = result.Data[x].BodyContent;
+                    var messageDateTime = result.Data[x].MessageDateTime;
+                    var senderName = result.Data[x].DisplayName;
+                    var isAdmin = result.Data[x].IsAdmin;
+
+                    appendMessage(photoUrl, bodyContent, messageDateTime, senderName, isAdmin, messageTypeId);
+                }
+                scrollToBottom();
+            },
+            error: function () {
+                iziToast.error({
+                    title: 'Error',
+                    message: 'Unable to update record. Please contact your system administrator.'
+                });
+            }
+        });
+    }
+
+    function onChangeReciepients() {
+        var multiselect = $("#CustomEmail_Recipients").data("kendoMultiSelect");
+        multiselect.value("");
+
+        var reciepientType = $("#ReciepientType").data("kendoDropDownList");
+        var reciepientsId = reciepientType.value();
+
+        if (reciepientsId == 1) {
+            $("#statusList").css("visibility", "hidden");
+            $("#customRecipients").css("visibility", "visible");
+        } else{
+            $("#statusList").css("visibility", "visible");
+            $("#customRecipients").css("visibility", "hidden");
+        }
+    }
+
+    function onChangeMessageType() {      
+        var type = $("#MessageType").data("kendoDropDownList");
+        var typeId = type.value();
+
+        /* Hide message subject when composing SMS */
+        if (typeId == 1) {
+            $('#messageSubject').hide();
+
+        } else {
+            $('#messageSubject').show();
+        }
+    }
+   
+    function onListDataBound(e) {
+        this.select($(".message-list:first"));
+
+        $(".k-list-scroller").css('overflow-y', 'hidden');
+        $(".k-auto-scrollable").css('overflow-y', 'hidden');
+    }
+
+    function onReplyMessage() {
+        if (selectedMessage.MessageTypeId == 1) {
+            windowTitle = selectedMessage.SenderMobilePhone;
+            $("#messageReplySubject").hide();
+        } else {
+            windowTitle = selectedMessage.EmailAddress;
+            $("#messageReplySubject").show();
+        }
+        var wnd = $("#replyWindow").data("kendoWindow");
+        wnd.element.prev().find(".k-window-title").html("<b class='custom'>" + windowTitle + "</b>");
+        wnd.center().open();
+
+    }
+
+    function onOpenForwardMessageWindow(messageContent) {
+        if (selectedMessage.MessageTypeId == 1) {
+            windowTitle = selectedMessage.SenderMobilePhone;
+            $("#messageForwardSubject").hide();
+            $("#customRecipients-forward").hide();
+            $("#messageForwardTo").show();
+        } else {
+            windowTitle = selectedMessage.EmailAddress;
+            $("#forwardSubject").val("FW:" + selectedMessage.Subject); 
+            $("#messageForwardSubject").show();
+            $("#customRecipients-forward").show();
+            $("#messageForwardTo").hide();
+        }
+        var wnd = $("#forwardWindow").data("kendoWindow");
+        wnd.element.prev().find(".k-window-title").html("<b class='custom'>Forward message from: " + windowTitle + "</b>");
+        wnd.center().open();
+
+        $("#forwardEditor").data('kendoEditor').value(messageContent);
+    }
+
+    function scrollToBottom() {
+        $('#message-content').scrollTop($('#message-content')[0].scrollHeight - $('#message-content')[0].clientHeight);
+    }
+       
+    function send(data) {
+        $.ajax({
+            type: "POST",
+            url: "/Members/MembersComms?handler=SendMessage",
+            data: data,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded",
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            success: function (result) {
+
+                $('#ComposeEmailModal').modal('hide');
+
+                if (result.success) {
+                    iziToast.success({
+                        title: 'Success',
+                        position: 'center',
+                        message: result.message
+                    });
+                } else {
+                    iziToast.error({
+                        title: 'Error',
+                        message: result.message
+                    });
+                }
+            },
+            error: function () {
+                iziToast.error({
+                    title: 'Error',
+                    message: 'Unable to update record. Please contact your system administrator.'
+                });
+            }
+        });
+    }
+
+    function sendMessage() {
+        var message = $("#CustomEmail_Message").val();
+        var messageType = $("#MessageType").data("kendoDropDownList").text();
+        var messageTypeId = $("#MessageType").data("kendoDropDownList").value();
+        var multiselect = $("#CustomEmail_Recipients").data("kendoMultiSelect");
+        var recipientType = $("#ReciepientType").data("kendoDropDownList").text();
+        var statusId = $("#Status").data("kendoDropDownList").value();
+        var subject = $("#Subject").val();
+        var selectedData = [];
+        var items = multiselect.value();
+        for (var i=0;i<items.length;i++)
+        {
+           selectedData.push(items[i]);
+        }
+
+        var data  = {
+            MessageType: messageType,
+            MessageTypeId: messageTypeId,
+            MemberIds: selectedData,
+            Message: message,
+            RecipientType: recipientType,
+            StatusId: statusId,
+            Subject: subject,
+            StudioId : studioId
+        }
+
+        /* validation before sending the message. */
+        if (message == '') {
+            iziToast.warning({
+                title: 'Warning',
+                position: 'center',
+                message: 'Please provide message.'
+            });
+        }  else if (recipientType == 'Custom') {
+            if (selectedData.length == 0) {
+                iziToast.warning({
+                    title: 'Warning',
+                    position: 'center',
+                    message: 'Please select recipient.'
+                });
+            } else {
+                send(data);
+            }
+        } else if (messageType == 'Email') {
+            if (subject == '') {
+                iziToast.warning({
+                    title: 'Warning',
+                    message: 'Please provide subject.'
+                });
+            } else {
+                send(data);
+            }
+        } else {
+            send(data);
+        }
+    }
+
+    function sendReplyMessage(messageType) {
+
+        var subject = $("#replySubject").val();
+        //var message = $("#replyEditor").val();
+        var message = $("#editor-field").val();
+
+        var data = {
+            MessageTypeId: selectedMessage.MessageTypeId,
+            SendTo: selectedMessage.MessageTypeId == 1 ? selectedMessage.SenderMobilePhone: selectedMessage.EmailAddress,
+            Message: message,
+            Subject: subject,
+            StudioId: studioId,
+            DisplayName: displayName
+        }
+
+        if (message == '') {
+            iziToast.warning({
+                title: 'Warning',
+                position: 'center',
+                message: 'Please provide message.'
+            });
+
+        } else if (messageType == 'Email') {
+            if (subject == '') {
+                iziToast.warning({
+                    title: 'Warning',
+                    message: 'Please provide subject.'
+                });
+            }
+        } else {
+           sendReply(data);
+        }
+    }
+
+    function sendReply(data) {
+        $.ajax({
+            type: "POST",
+            url: "/Members/MembersComms?handler=SendReplyMessage",
+            data: data,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded",
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            success: function (result) {
+                var wnd = $("#replyWindow").data("kendoWindow");
+                wnd.close();
+
+                var item = selectedMessage;
+                var listView = $("#MessageList").data("kendoListView");
+                listView.select(listView.element.find('[data-uid="' + item.uid + '"]'));
+
+                if (result.success) {
+                    iziToast.success({
+                        title: 'Success',
+                        position: 'center',
+                        message: result.message
+                    });
+
+                    $("#editor-field").val('');
+                } else {
+                    iziToast.error({
+                        title: 'Error',
+                        message: result.message
+                    });
+                }
+            },
+            error: function () {
+                iziToast.error({
+                    title: 'Error',
+                    message: 'Unable to update record. Please contact your system administrator.'
+                });
+            }
+        });
+    }
+
+</script>
+

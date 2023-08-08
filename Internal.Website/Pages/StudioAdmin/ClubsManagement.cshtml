@@ -1,0 +1,120 @@
+﻿@page
+@model Internal.Website.Pages.StudioAdmin.ClubsManagementModel
+@using DataAccess.ViewModels
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{ ViewData["Title"] = "Club Management"; }
+
+<div class="bg-light content-maint mh-100 min-vh-100">
+    <div class="row mh-100 min-vh-100">
+        <div class="col-md-12 mh-100 min-vh-100">
+            <div class="col text-left">
+                <h4 class="k-primary">
+                    <small class="k-text-primary">@ViewData["Title"]</small>
+                </h4>
+            </div>
+            <div class="col-md-6 text-left" style="padding:0.5em">
+                @Html.Label("Parent Studio: ")
+                @(Html.Kendo().DropDownList()
+                    .Name("Gym")
+                    .DataTextField("GymName")
+                    .DataValueField("GlobalTrainingGymId")
+                    .Events(e => e.Change("onChange"))
+                    .BindTo((System.Collections.IEnumerable)ViewData["gym"])
+                    .HtmlAttributes(new { style = "width:30%;" }))
+            </div>
+            @Html.AntiForgeryToken()
+            @(Html.Kendo().Grid<ClubViewModel>()
+                .Name("grdClubs")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.StudioName).Title("Studio")
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false); ;
+                    columns.Bound(c => c.VisitCount).Title("Clubs").Width("10%").Filterable(false)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { @class = "text-center" });
+                    columns.Command(c =>
+                    {
+                        c.Edit().Text(" ").IconClass("k-icon k-i-edit").HtmlAttributes(new { style = "align-text:center" });
+                        c.Destroy().Text(" ").IconClass("k-icon k-i-delete").HtmlAttributes(new { style = "align-text:center" });
+                    }).Title("Actions").Width("10%").HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { @class = "text-center" });
+                }).HtmlAttributes(new { @class = "text-center" })
+                .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("CustomClubsManagementEditor").Window(w => w.Title("New Club Details"))
+                )
+                .Navigatable()
+                .Filterable(filterable => filterable
+                    .Extra(false).Operators(operators => operators
+                        .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                .Mobile()
+                .Sortable()
+                .Scrollable(scr => scr.Height(400))
+                .HtmlAttributes(new { style = "height:100%; width:auto; font-size:13px;" })
+                .Pageable(p =>
+                {
+                    p.ButtonCount(5);
+                    p.PageSizes(true);
+                })
+                .ToolBar(tb => tb.Create().Text("New Club").IconClass("k-icon k-i-dictionary-add"))
+                .Events(e => e.DataBound("onDataBound").SaveChanges("onGridSave").Save("onGridSave"))
+                .DataSource(ds => ds.Ajax()
+                    .PageSize(10)
+                    .Events(events => events.Error("error_handler"))
+                    .Read(r => r.Url("/StudioAdmin/ClubsManagement?handler=Read").Data("forgeryToken"))
+                    .Create(c => c.Url("/StudioAdmin/ClubsManagement?handler=Create").Data("forgeryToken"))
+                    .Update(u => u.Url("/StudioAdmin/ClubsManagement?handler=Update").Data("forgeryToken"))
+                    .Destroy(d => d.Url("/StudioAdmin/ClubsManagement?handler=Destroy").Data("forgeryToken"))
+                    .Model(m => m.Id(id => id.VisitAchievementId))))
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function onChange() {
+        var gymlist = $("#Gym").data("kendoDropDownList");
+        gymId = gymlist.value();
+
+        var gridObject = $("#grdClubs").data("kendoGrid")
+        gridObject.dataSource.transport.options.read.url = "/StudioAdmin/ClubsManagement?handler=Read&gymId=" + gymId;
+        gridObject.dataSource.read();
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            console.log(e.error);
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                        console.log(message);
+                        console.log(value);
+                    });
+                }
+            });
+            iziToast.error({
+                title: 'Error',
+                message: message,
+                position: 'center'
+            });
+
+            var gridObject = $("#grdClubs").data("kendoGrid");
+            gridObject.dataSource.transport.options.read.url = "/StudioAdmin/ClubsManagement?handler=Read";
+            gridObject.dataSource.read();
+        }
+    }
+
+    function onDataBound() {
+        //position the add new button to the left.
+        $(".k-grid-toolbar").addClass("text-left");
+    }
+
+    function onGridSave(e) {
+        e.sender.one("dataBound", function () {
+            e.sender.dataSource.read();
+        });
+    }
+
+</script>

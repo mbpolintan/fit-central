@@ -1,0 +1,36 @@
+﻿@model DataAccess.ViewModels.ReportScanViewModel
+@using Kendo.Mvc.UI
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+       
+    <i>Select&nbsp;@(Html.LabelFor(model => model.MemberId))</i>
+    @(Html.Kendo().DropDownListFor(model => model.MemberId)
+        .HtmlAttributes(new { style = "width:100%;", data_bind = "value:MemberId", data_value_primitive = "true" })
+        .Filter(FilterType.Contains)
+        .OptionLabel("Select Name")
+        .DataTextField("DisplayName")
+        .DataValueField("MemberId")
+        .BindTo((System.Collections.IEnumerable)ViewData["membersReport"])
+    )
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.MobileNumber))</i>
+    @(Html.TextBoxFor(model => model.MobileNumber, new { style = "width:100%", @class = "k-textbox", data_bind = "value:MobileNumber", @readonly = "readonly" }))
+</label>
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.TestDateTime))</i>
+    @(Html.TextBoxFor(model => model.TestDateTime, new { style = "width:100%", @class = "k-textbox", data_bind = "value:TestDateTime", @readonly = "readonly", }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.Age))</i>
+    @(Html.TextBoxFor(model => model.Age, new { style = "width:100%", @class = "k-textbox", data_bind = "value:Age", @readonly = "readonly" }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.Height))</i>
+    @(Html.TextBoxFor(model => model.Height, new { style = "width:100%", @class = "k-textbox", data_bind = "value:Height", @readonly = "readonly" }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.Weight))</i>
+    @(Html.TextBoxFor(model => model.Weight, new { style = "width:100%", @class = "k-textbox", data_bind = "value:Weight", @readonly = "readonly" }))
+</label>

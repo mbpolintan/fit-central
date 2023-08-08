@@ -1,0 +1,55 @@
+{
+  "_from": "@syncfusion/ej2-progressbar@~18.2.47",
+  "_id": "@syncfusion/ej2-progressbar@18.2.47",
+  "_inBundle": false,
+  "_integrity": "sha512-YcH5tfq7PqoInq1ME/wAeSq+xSlmrfS+hE2oPD0HWBmNBNXY7PLmxfpYYAEqXTYlIsdptPw4cEPmIfMU/D977g==",
+  "_location": "/@syncfusion/ej2-progressbar",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-progressbar@~18.2.47",
+    "name": "@syncfusion/ej2-progressbar",
+    "escapedName": "@syncfusion%2fej2-progressbar",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.47",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.47"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-progressbar/-/ej2-progressbar-18.2.47.tgz",
+  "_shasum": "b9c8e692fd5420370485535e6b8daf9c18e9190b",
+  "_spec": "@syncfusion/ej2-progressbar@~18.2.47",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.47",
+    "@syncfusion/ej2-data": "~18.2.44",
+    "@syncfusion/ej2-svg-base": "~18.2.46"
+  },
+  "deprecated": false,
+  "description": "Essential JS 2 ProgressBar Component",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-progressbar.es2015.js",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "ej2-progressbar"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-progressbar.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-progressbar",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/syncfusion/ej2-javascript-ui-controls/tree/master/controls/progressbar"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.47"
+}

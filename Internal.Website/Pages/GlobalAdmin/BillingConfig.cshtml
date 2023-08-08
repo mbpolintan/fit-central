@@ -1,0 +1,213 @@
+﻿@page
+@model StudioCentral.Pages.GlobalAdmin.BillingConfigModel
+@using DataAccess.Models
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{
+    ViewData["Title"] = "   Billing Configuration";
+}
+
+<div class="bg-dark content-maint mh-100 min-vh-100">
+    <div class="row">
+        <div class="col text-center">
+            <h4 class="k-primary">
+                <small class="k-text-primary">@ViewData["Title"]</small>
+            </h4>
+        </div>
+    </div>
+    <div class="row mh-100 min-vh-100">
+        <div class="col-md-12 mh-100 min-vh-100">
+            @Html.AntiForgeryToken()
+            @(Html.Kendo().Grid<Studio>()
+                .Name("gridStudio")
+                .Columns(columns =>
+                {
+                    columns.Bound(e => e.StudioName).Title("Studio").HeaderHtmlAttributes(new { style = "text-align:center" });
+                    columns.Command(c =>
+                    {
+                        c.Custom("Products").Text("Get Products").HtmlAttributes(new { style = "align-text:center; margin:0;" }).Click("GetProduct");
+
+                    }).Title("Action").Width("10%");
+                })
+                .Navigatable()
+                .Sortable()
+                .Filterable(filterable => filterable
+                    .Extra(false)
+                    .Operators(operators => operators
+                        .ForString(str => str.Clear()
+                            .StartsWith("Starts with")
+                            .IsEqualTo("Is equal to")
+                            .IsNotEqualTo("Is not equal to")
+                        ))
+                    )
+                .Scrollable(scr => scr.Height(400))
+                .HtmlAttributes(new { style = "height:100%; width:auto; font-size:13px;" })
+                .Mobile()
+                .ClientDetailTemplateId("ProductTemplate")
+                 .Events(events => events
+                                .DataBound("onDataBound")
+                            )
+                .ToolBar(tb =>
+                {
+                    tb.Search();
+                })
+                .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Read(r => r.Url("/GlobalAdmin/BillingConfig?handler=Read").Data("forgeryToken")))
+                )
+        </div>
+    </div>
+</div>
+
+
+<script id="ProductTemplate" type="text/kendo-tmpl">
+    @Html.AntiForgeryToken()
+    @(Html.Kendo().Grid<Product>()
+                .Name("grid_#=SiteId#")
+                .Columns(columns =>
+                {
+                    columns.Bound(e => e.Name).Title("Product Description").HeaderHtmlAttributes(new { style = "text-align:center" });
+                    //columns.Bound(e => e.ShortDescription).Title("Short Description").HeaderHtmlAttributes(new { style = "text-align:center" });
+                    //columns.Bound(e => e.LongDescription).Title("Long Description").HeaderHtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(e => e.Price).Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(e => e.OnlinePrice).Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(e => e.TaxRate).Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(e => e.TaxIncluded).Format("{0:n2}")
+                    .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                })
+                .Navigatable()
+                .Sortable()
+                .Filterable(filterable => filterable
+                    .Extra(false)
+                    .Operators(operators => operators
+                        .ForString(str => str.Clear()
+                            .StartsWith("Starts with")
+                            .IsEqualTo("Is equal to")
+                            .IsNotEqualTo("Is not equal to")
+                        ))
+                    )
+                .Scrollable(scr => scr.Height(400))
+                .HtmlAttributes(new { style = "height:100%; width:auto; font-size:13px;" })
+                .Mobile()
+                .ClientDetailTemplateId("ProductColorSizeTemplate")
+                .ToolBar(tb =>
+                {
+                    tb.Search();
+                })
+                .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Read(r => r.Url("/GlobalAdmin/BillingConfig?handler=ReadProduct&siteId=#=SiteId#").Data("forgeryToken")))
+                .ToClientTemplate())
+</script>
+
+<script id="ProductColorSizeTemplate" type="text/kendo-tmpl">
+    @(Html.Kendo().TabStrip()
+      .Name("tabStrip_#=ProductId#")
+      .SelectedIndex(0)
+      .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+      .Items(items =>
+      {
+          items.Add().Text("Color").Content(@<text>
+                @(Html.Kendo().Grid<ProductColor>()
+                    .Name("grid_#=ProductId#")
+                    .Columns(columns =>
+                    {
+                        columns.Bound(o => o.Name).Title("Color").HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+
+                    })
+                    .HtmlAttributes(new { style = "width:100%; font-size:13px; padding:0" })
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Read(r => r.Url("/GlobalAdmin/BillingConfig?handler=ReadProductColor&productId=#=ProductId#").Data("forgeryToken"))
+                        )
+                    .ToClientTemplate())
+
+            </text>);
+          items.Add().Text("Size").Content(@<text>
+                @(Html.Kendo().Grid<ProductSize>()
+                    .Name("gridItems_#=ProductId#")
+                    .Columns(columns =>
+                    {
+                        
+                        columns.Bound(e => e.Name).Title("Size").HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                    })
+                    .HtmlAttributes(new { style = "width:100%; font-size:13px; padding:0" })
+                    .Sortable()
+                    .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Read(r => r.Url("/GlobalAdmin/BillingConfig?handler=ReadProductSize&productId=#=ProductId#").Data("forgeryToken"))
+                        )
+                    .ToClientTemplate())
+
+            </text>);
+      }).ToClientTemplate())
+</script>
+
+<script>
+
+    var siteId = 0;
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function onDataBound(e) {
+        var grid = e.sender;        
+        grid.tbody.find("tr.k-master-row").click(function (e) {
+            var target = $(e.target);
+
+            if ((target.hasClass("k-i-expand")) || (target.hasClass("k-i-collapse"))) {
+                return;
+            }
+            var row = target.closest("tr.k-master-row");
+            var icon = row.find(".k-i-expand");
+
+            if (icon.length) {
+                grid.expandRow(row);
+            } else {
+                grid.collapseRow(row);
+            }
+        })
+    }
+
+    function onGridSave(e) {
+        e.sender.one("dataBound", function () {
+            e.sender.dataSource.read();
+            reloadPage();
+        });
+    }   
+
+    function GetProduct(e) {
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+        siteId = dataItem["SiteId"]; 
+       
+        $.ajax({
+            type: "POST",
+            url: "/GlobalAdmin/BillingConfig?handler=UpdateProduct&siteId=" + siteId,
+            dataType: 'json',
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            success: function (result) {               
+
+                var gridObject = $("#grid_" + siteId).data("kendoGrid");
+                gridObject.dataSource.transport.options.read.url = "//GlobalAdmin/BillingConfig?handler=ReadProduct&siteId=" + siteId;
+                gridObject.dataSource.read();
+            },
+            error: function () {
+                alert("there was an error");
+            }
+        });
+    }
+
+    $(document).ready(function () {        
+
+        $('body').on('click', '#GetProducts', function () {
+           
+
+        });
+    });
+
+</script>

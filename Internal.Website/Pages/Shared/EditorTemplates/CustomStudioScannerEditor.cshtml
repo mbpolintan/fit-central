@@ -1,0 +1,14 @@
+﻿@model DataAccess.ViewModels.StudioScannerViewModel
+@using Kendo.Mvc.UI
+
+    <label class="km-inline-field km-label-above" style="width:100%;">
+        <i>Select&nbsp;@(Html.LabelFor(model => model.StudioId))</i>     
+        @(Html.Kendo().DropDownList()
+            .Name("Studio")
+            .HtmlAttributes(new { style = "width:100%", data_value_primitive = "true", data_bind = "value:StudioId" })
+            .OptionLabel("Select Studio...")
+            .DataTextField("StudioName")
+            .DataValueField("StudioId")
+            .BindTo((System.Collections.IEnumerable)ViewData["studios"])
+        )
+    </label>

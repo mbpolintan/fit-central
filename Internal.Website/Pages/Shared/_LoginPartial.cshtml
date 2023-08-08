@@ -1,0 +1,21 @@
+
+
+
+
+@if (User.Identity.IsAuthenticated)
+{
+    
+        ViewData["name"] = User.Claims.FirstOrDefault(x => x.Type == "name").Value.Contains(" ")
+            ? User.Claims.FirstOrDefault(x => x.Type == "name").Value.Substring(0, User.Claims.FirstOrDefault(x => x.Type == "name").Value.IndexOf(" "))
+            : User.Claims.FirstOrDefault(x => x.Type == "name").Value;
+    
+
+    <span class="k-text-primary">Hello @ViewData["name"]!&nbsp;&nbsp;</span>
+    <a class="text-light" style="text-decoration:none;" asp-area="AzureAD" asp-controller="Account" asp-action="SignOut">Logout&nbsp;<i class="k-icon k-i-logout"></i></a>
+
+
+}
+else
+{
+    <a class="nav-link text-light" asp-area="AzureAD" asp-controller="Account" asp-action="SignIn">Login&nbsp;<i class="k-icon k-i-login"></i></a>
+}

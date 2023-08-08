@@ -1,0 +1,82 @@
+{
+  "_from": "@syncfusion/ej2-schedule@~18.2.47",
+  "_id": "@syncfusion/ej2-schedule@18.2.47",
+  "_inBundle": false,
+  "_integrity": "sha512-S4E4wrtAJGZYDN37QWcvOdpeY72DKLN3ik0WoUX/3B6XkR8Y9AH2/mLzNsj8r8lkEKisEeDFhbFe7aDVf9o9GQ==",
+  "_location": "/@syncfusion/ej2-schedule",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-schedule@~18.2.47",
+    "name": "@syncfusion/ej2-schedule",
+    "escapedName": "@syncfusion%2fej2-schedule",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.47",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.47"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-schedule/-/ej2-schedule-18.2.47.tgz",
+  "_shasum": "7446e0570dc1d2e9b9c533b1bef89a8cadeaf7c5",
+  "_spec": "@syncfusion/ej2-schedule@~18.2.47",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bugs": {
+    "url": "https://github.com/syncfusion/ej2-javascript-ui-controls/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.47",
+    "@syncfusion/ej2-buttons": "~18.2.44",
+    "@syncfusion/ej2-calendars": "~18.2.44",
+    "@syncfusion/ej2-data": "~18.2.44",
+    "@syncfusion/ej2-dropdowns": "~18.2.47",
+    "@syncfusion/ej2-excel-export": "~18.2.45",
+    "@syncfusion/ej2-inputs": "~18.2.47",
+    "@syncfusion/ej2-lists": "~18.2.46",
+    "@syncfusion/ej2-navigations": "~18.2.47",
+    "@syncfusion/ej2-popups": "~18.2.46"
+  },
+  "deprecated": false,
+  "description": "Flexible scheduling library with more built-in features and enhanced customization options similar to outlook and google calendar, allowing the users to plan and manage their appointments with efficient data-binding support.",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-schedule.es2015.js",
+  "homepage": "https://github.com/syncfusion/ej2-javascript-ui-controls#readme",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "web-components",
+    "TypeScript",
+    "schedule",
+    "TypeScript-scheduler",
+    "resources",
+    "multiple-resources",
+    "grouping",
+    "views",
+    "Typescript-calendar",
+    "appointments",
+    "events",
+    "tasks",
+    "recurrence",
+    "data-binding",
+    "timezone",
+    "recurrence-editor",
+    "agenda"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-schedule.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-schedule",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syncfusion/ej2-javascript-ui-controls.git"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.47"
+}

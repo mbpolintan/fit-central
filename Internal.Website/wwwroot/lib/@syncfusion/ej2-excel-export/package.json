@@ -1,0 +1,61 @@
+{
+  "_from": "@syncfusion/ej2-excel-export@~18.2.45",
+  "_id": "@syncfusion/ej2-excel-export@18.2.45",
+  "_inBundle": false,
+  "_integrity": "sha512-KXJDUIxmCQlpW43YpRG5BBEhy8S7fPl0IICqFvhKPHtt/Jh52+C27QM+7WMZRFzWGUPfy2Jp9gvme30DZ1n0Ew==",
+  "_location": "/@syncfusion/ej2-excel-export",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-excel-export@~18.2.45",
+    "name": "@syncfusion/ej2-excel-export",
+    "escapedName": "@syncfusion%2fej2-excel-export",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.45",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.45"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2",
+    "/@syncfusion/ej2-grids",
+    "/@syncfusion/ej2-pivotview",
+    "/@syncfusion/ej2-schedule"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-excel-export/-/ej2-excel-export-18.2.45.tgz",
+  "_shasum": "d7f34352b1b985527e7c1221d260fb868d056374",
+  "_spec": "@syncfusion/ej2-excel-export@~18.2.45",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bugs": {
+    "url": "https://github.com/syncfusion/ej2-javascript-ui-controls/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.44",
+    "@syncfusion/ej2-compression": "~18.2.44"
+  },
+  "deprecated": false,
+  "description": "Essential Javascript 2 Excel Export Library",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-excel-export.es2015.js",
+  "homepage": "https://github.com/syncfusion/ej2-javascript-ui-controls#readme",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "ej2-excel-creator"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-excel-export.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-excel-export",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syncfusion/ej2-javascript-ui-controls.git"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.45"
+}

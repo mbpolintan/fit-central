@@ -1,0 +1,366 @@
+﻿@page
+@model Internal.Website.ImportScansModel
+@using DataAccess.Models
+@using DataAccess.ViewModels
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{ ViewData["Title"] = "Import Scans"; }
+
+<div class="bg-light">   
+    <div class="row">
+        <div class="col">
+            <div class="col text-left">
+                <h4 class="k-primary">
+                    <small class="k-text-primary">@ViewData["Title"]</small>
+                </h4>
+            </div>
+            <div class="col-md-5 text-left" style="padding:0.5em">
+                @Html.Label("Studios: ")
+                @(Html.Kendo().DropDownList()
+                    .Name("Studio")
+                    .DataTextField("StudioName")
+                    .DataValueField("StudioId")
+                    .Events(e => e.Change("onChangeStudio"))
+                    .BindTo((System.Collections.IEnumerable)ViewData["Studios"])
+                    .HtmlAttributes(new { style = "width:50%;" }))
+            </div>
+            @Html.AntiForgeryToken()
+            @(Html.Kendo().Grid<ScanImportViewModel>()
+            .Name("gridImports")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.ScannerName).Title("Scanner").Width("30%").Filterable(false)
+                .HeaderHtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(e => e.ImportDate).Width("15%").Format("{0:d}").Title("Date Imported").Filterable(false)
+                .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(e => e.ScanCount).Width("15%").Title("Number of Scanned Records").Filterable(false)
+                .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(e => e.ImportedFileName).Width("30%").Title("Imported File").Filterable(false)
+                .HeaderHtmlAttributes(new { style = "text-align:center" });
+                columns.Command(c =>
+                {
+                    c.Destroy().Text(" ").IconClass("k-icon k-i-delete").HtmlAttributes(new { style = "align-text:center; margin:0;" });
+                }).Title("Remove").HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+            })
+            .Navigatable().Sortable().Mobile()
+            .Filterable(filterable => filterable.Extra(false)
+                .Operators(operators => operators.ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+
+            .HtmlAttributes(new { style = "height:100%; width:auto; font-size:13px;" })
+            .Pageable(p => p.ButtonCount(5).PageSizes(true))
+            .ToolBar(tb =>
+            {
+                tb.Custom().Text("Import Scan").HtmlAttributes(new { id = "import" });
+                tb.Search();
+            })
+            .Search(search => search.Field(f => f.ImportDate))
+            .Events(events => events.DataBound("onDataBoundImports").Save("onSave").SaveChanges("onSave"))
+            .Scrollable(scr => scr.Height(700))
+            .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("CustomImportScanEditor").Window(w => w.Title("Upload New Scans")))
+            .ClientDetailTemplateId("templateScan")
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(10)
+                .Read(r => r.Url("").Data("forgeryToken"))
+                .Destroy(d => d.Url("/Scans/ImportScans?handler=Destroy").Data("forgeryToken"))
+                .Model(m =>
+                {
+                    m.Id(id => id.ScansImportId);
+                    m.Field(x => x.ScansImportId).Editable(false);
+                    m.Field(x => x.ModifiedById).Editable(false);
+                    m.Field(x => x.DateModified).Editable(false);
+                })
+                ))
+        </div>
+    </div>
+</div>
+
+<div id="ImportScanModal" style="display:none">
+    <div class="col-md-12" style="float:none; margin:auto;">
+        <div class="form-group">
+            <label class="km-inline-field km-label-above k-text-primary" style="width:100%;">
+                Select&nbsp;@(Html.Label("Scanner Name"))
+                @(Html.Kendo().DropDownList()
+                    .HtmlAttributes(new { required = "required", style = "width:100%; text-center" })
+                    .Name("ScannerId")
+                    .DataValueField("Value")
+                    .DataTextField("Text")
+                    .Events(e => e.Change("onChangeScanner").DataBound("onDataBoundScanner"))
+                    .AutoBind(false))
+            </label>
+            <ul class="order-1 col-md-6 studio">
+            </ul>
+            <label class="km-inline-field km-label-above k-text-primary" style="width:100%;">
+                @(Html.Kendo().Upload()
+                    .Name("files")
+                    .Multiple(false)
+                    .Validation(validation =>validation.AllowedExtensions(new string[] { ".csv" }))
+                    .HtmlAttributes(new { aria_label = "files", @class = "col-md-3" })
+                    .Events(e => e.Select("onSelectFile")))
+            </label>
+            <label class="km-inline-field km-label-above k-text-primary" style="width:100%;">
+                <input type="submit" value="Upload" class="k-primary k-button" id="btnSubmit" disabled/>
+                <button id="clearAll" class="k-button">Clear</button>
+            </label>
+        </div>
+    </div>
+</div>
+
+<script id="templateScan" type="text/kendo-tmpl">
+    @Html.AntiForgeryToken()
+    @(Html.Kendo().Grid<ScanViewModel>()
+        .Name("grid_#=ScansImportId#")
+        .Columns(columns =>
+        {
+            columns.Bound(o => o.DisplayName).Title("Member").Width("50%")
+            .HeaderHtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(o => o.TestDateTime).Title("Scan Date").Format("{0:d}").Width("10%")
+            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+            columns.Bound(o => o.MobileNumber).Title("Mobile Number").Width("10%")
+            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+            columns.Bound(o => o.Height).Title("Height").Width("10%").Filterable(false)
+            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+            columns.Bound(o => o.Weight).Title("Weight (kg)").Format("{0:n1}").Width("10%").Filterable(false)
+            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+            columns.Bound(o => o.Age).Title("Age").Width("10%").Filterable(false)
+            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+        })
+        .ToolBar(tb =>
+        {
+            tb.ClientTemplate("List of Scans");
+            tb.Search();
+        })
+        .Search(search =>
+        {
+            search
+            .Field(f => f.DisplayName)
+            .Field(f => f.TestDateTime)
+            .Field(f => f.MobileNumber);
+        })
+        .Navigatable().Sortable().Mobile()
+        .Filterable(filterable => filterable.Extra(false)
+            .Operators(operators => operators.ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))        
+        .Scrollable(scr => scr.Height(500))
+        .HtmlAttributes(new { style = "height:100%; width:auto; font-size:13px;" })
+        .Pageable(p => p.ButtonCount(5).PageSizes(true))
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(20)
+            .Read(r => r.Url("/Scans/ImportScans?handler=ReadScan&importedScanId=#=ScansImportId#").Data("forgeryToken")))
+        .ToClientTemplate())
+</script>
+
+<div id="uploading">
+    @(Html.Kendo().Dialog()
+        .Name("dialog")        
+        .Content("<div class=\"cssload-preloader\"><span>L</span><span>o</span><span>a</span><span>d</span><span>i</span><span>n</span><span>g</span></div>")
+        .Width(500)
+        .Modal(false)
+        .Title(false)
+        .HtmlAttributes(new { @style="border:none;background:transparent;height:300px" }))  
+</div>
+
+<script>
+    var studioId = 0;
+
+    var KendoWindowManager = {
+        InitKendoWindow: function () {
+            $('#ImportScanModal').kendoWindow({
+                title: "Import Scans",
+                width: "30%",
+                modal: true,
+                actions: ["Close"],
+                visible: false
+            });
+        }
+    }
+
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function onChangeScanner() {
+        var scannerId = $("#ScannerId").val();
+        getScannerStudio(scannerId);
+    }
+
+    function onChangeStudio(e) {
+        $("#Studio").closest(".k-widget").attr("id", "memberStudio");
+
+        var dropdownlist = $("#Studio").data("kendoDropDownList");
+        $("#Studio").closest(".k-widget").attr("id", "memberStudio");
+
+        studioId = dropdownlist.value();
+        scannerId = $("#ScannerId").val();
+        var gridObject = $("#gridImports").data("kendoGrid")
+        gridObject.dataSource.transport.options.read.url = "/Scans/ImportScans?handler=Read&studioId=" + studioId;
+        gridObject.dataSource.read();
+    }
+
+    function onDataBoundImports(e) {
+        //position the add new button to the left.
+        $(".k-grid-toolbar").addClass("text-left");
+    }
+
+    function onDataBoundScanner() {
+        var scannerId = $("#ScannerId").val();
+        getScannerStudio(scannerId);
+    }
+
+    function onSave(arg) {
+        e.sender.one("dataBound", function () {
+        e.sender.dataSource.read();
+        });
+    }
+
+    function getScanners(studioId) {
+
+        $.ajax({
+            type: "POST",
+            url: "/Scans/ImportScans?handler=ReadScanner&scannerId=" + studioId,
+            dataType: 'json',
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            success: function (result) {
+
+                var dataSource = new kendo.data.DataSource({
+                    data: result
+                });
+
+                var dropdownlist = $("#ScannerId").data("kendoDropDownList");
+                dropdownlist.setDataSource(dataSource);
+            },
+            error: function () {
+                alert("There was an error");
+            }
+        });
+    }
+
+    function getScannerStudio(scannerId){
+        $(".studio li").remove();
+        $.ajax({
+            type: "POST",
+            url: "/Scans/ImportScans?handler=ReadScannerStudio&scannerId=" + scannerId,
+            dataType: 'json',
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            success: function (result) {
+                $.each(result, function (bb) {
+                    $(".studio").append("<li>" + result[bb].StudioName + "</li>");
+                });
+            },
+            error: function () {
+                alert("There was an error");
+            }
+        });
+    }
+
+    function onSelectFile(e) {
+        var ext = e.files[0].extension.toLowerCase();
+        if (ext == ".csv") {
+            $('#btnSubmit').removeAttr('disabled');
+        }
+    }
+
+    function showDialog() {
+        $('#dialog').data("kendoDialog").open();
+    }
+
+    function closeDialog() {
+        $('#dialog').data("kendoDialog").close();
+    }
+
+    $(document).ready(function () {
+
+        var studioName = '@Model.SelectedStudio.StudioName';
+        studioId = '@Model.SelectedStudio.StudioId';
+        var dropdownlist = $("#Studio").data("kendoDropDownList");
+        dropdownlist.text(studioName);
+        dropdownlist.value(studioId);
+        dropdownlist.trigger("change");
+
+        closeDialog();
+        KendoWindowManager.InitKendoWindow();
+        var gridObject = $("#gridImports").data("kendoGrid")
+
+        $('#import').on('click', function (e) {
+            e.preventDefault();
+            var wnd = $("#ImportScanModal").data("kendoWindow");
+            wnd.center().open();
+            getScanners(studioId)
+
+        });
+
+        $('body').on('click', '#btnSubmit', function () {
+            var wnd = $("#ImportScanModal").data("kendoWindow");
+            wnd.close();
+
+            $('#Menu').attr('disabled','disabled');
+
+            kendo.ui.progress(gridObject.element, true);
+            var scannerId = $("#ScannerId").val();
+
+            $("#files").kendoUpload()
+            var upload = $("#files").data("kendoUpload"),
+                files = upload.getFiles();
+            var data = files[0].rawFile
+            var formData = new FormData();
+            formData.append('file', data);
+            formData.append('scannerId', scannerId);
+            showDialog();
+
+            $.ajax({
+                type: "POST",
+                url: '?handler=Submit',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                success: function (data) {
+                    closeDialog();
+                    $('#gridImports').find(".k-loading-mask").remove();
+                    var gridObject = $("#gridImports").data("kendoGrid")
+                    gridObject.dataSource.transport.options.read.url = "/Scans/ImportScans?handler=Read&studioId=" + studioId;
+                    gridObject.dataSource.read();
+
+                    iziToast.success({
+                        title: 'OK',
+                        message: 'Scans successfully imported to Studio Central databasse.',
+                    });
+                    $('#Menu').removeAttr('disabled');
+                    var upload = $("#files").data("kendoUpload");
+                    upload.clearAllFiles();
+
+                },
+                error: function (e) {
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Illegal operation',
+                    });
+                    $('#Menu').removeAttr('disabled');
+                }
+            });
+
+        });
+
+        $("#clearAll").on('click', function (e) {
+            e.preventDefault();
+            var upload = $("#files").data("kendoUpload");
+            upload.clearAllFiles();
+        })
+    });
+
+</script>
+
+<style>
+    .k-dialog {
+        border: none;
+        background: transparent;
+    }
+    .k-button.k-bare.k-button-icon.k-window-action.k-dialog-action.k-dialog-close{
+    display: none;
+    }
+</style>

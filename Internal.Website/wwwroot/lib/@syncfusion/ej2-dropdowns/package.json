@@ -1,0 +1,73 @@
+{
+  "_from": "@syncfusion/ej2-dropdowns@~18.2.48",
+  "_id": "@syncfusion/ej2-dropdowns@18.2.48",
+  "_inBundle": false,
+  "_integrity": "sha512-BNyKtNNAfSD8jcckDw6c9QbRCyTtFH1mHSvTpBbqS2Uiieeydn/e5OuqCkO/QaH3+qV8BGNQCbp7UiCJdPC+FQ==",
+  "_location": "/@syncfusion/ej2-dropdowns",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-dropdowns@~18.2.48",
+    "name": "@syncfusion/ej2-dropdowns",
+    "escapedName": "@syncfusion%2fej2-dropdowns",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.48",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.48"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2",
+    "/@syncfusion/ej2-documenteditor",
+    "/@syncfusion/ej2-gantt",
+    "/@syncfusion/ej2-grids",
+    "/@syncfusion/ej2-inplace-editor",
+    "/@syncfusion/ej2-kanban",
+    "/@syncfusion/ej2-pdfviewer",
+    "/@syncfusion/ej2-pivotview",
+    "/@syncfusion/ej2-querybuilder",
+    "/@syncfusion/ej2-schedule",
+    "/@syncfusion/ej2-spreadsheet"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-dropdowns/-/ej2-dropdowns-18.2.48.tgz",
+  "_shasum": "59f221910e7188b8c2a2c5adf5b71a953380ff60",
+  "_spec": "@syncfusion/ej2-dropdowns@~18.2.48",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.47",
+    "@syncfusion/ej2-data": "~18.2.44",
+    "@syncfusion/ej2-inputs": "~18.2.48",
+    "@syncfusion/ej2-lists": "~18.2.48",
+    "@syncfusion/ej2-navigations": "~18.2.47",
+    "@syncfusion/ej2-popups": "~18.2.46"
+  },
+  "deprecated": false,
+  "description": "Essential JS 2 DropDown Components",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-dropdowns.es2015.js",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "ej2-dropdown",
+    "dropdownlist",
+    "autocomplete",
+    "multiselect",
+    "combobox",
+    "select",
+    "ej2-dropdownlist",
+    "ej2-autocomplete",
+    "ej2-multiselect",
+    "ej2-combobox"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-dropdowns.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-dropdowns",
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.48"
+}

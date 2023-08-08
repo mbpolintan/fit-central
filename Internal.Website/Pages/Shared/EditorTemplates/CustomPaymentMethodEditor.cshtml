@@ -1,0 +1,42 @@
+﻿@model DataAccess.ViewModels.PaymentMethodViewModel
+@*@model DataAccess.Models.PaymentMethod*@
+@using Kendo.Mvc.UI
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    Payment Method Type
+    @(Html.Kendo().DropDownListFor(model => model.PaymentMethodTypeId)
+        .HtmlAttributes(new { required = "required", style = "width:100%;", data_value_primitive = "true"})
+        .Filter(FilterType.Contains)
+        .Events(e => e.Change("onChangePaymentMethod"))
+        .DataTextField("Description")
+        .DataValueField("PaymentMethodTypeId")
+        .BindTo((System.Collections.IEnumerable)ViewData["paymentMethodType"]))
+</label>
+
+
+<div id="paidByOther">
+    <label class="km-inline-field km-label-above" style="width:100%;">
+        @(Html.Kendo().DropDownListFor(model => model.PaidByOtherMemberId)
+             .HtmlAttributes(new { style = "width:100%;", data_value_primitive = "true", @class="visible=false"})
+             .Filter(FilterType.Contains)
+             .OptionLabel("Select Member")
+             .DataTextField("DisplayName")
+             .DataValueField("MemberId")
+             .BindTo((System.Collections.IEnumerable)ViewData["forOtherMember"]))
+    </label>
+</div>
+
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    @(Html.Kendo().CheckBoxFor(model => model.IsActive).Checked(true).Label("Active"))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    @(Html.Kendo().CheckBoxFor(model => model.IsDefault).Checked(true).Label("Default Payment Method"))
+</label>
+
+
+<style>
+    .k-checkbox-label {
+        padding-left: 20px;
+    }
+</style>

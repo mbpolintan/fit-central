@@ -1,0 +1,95 @@
+﻿@model DataAccess.Models.Member
+@using Kendo.Mvc.UI
+
+<div class="col-md-6 Image" style="float:right;">
+    <div class="col-md-12 text-center">
+        <span class="text-center"> Member's Profile Photo </span>
+    </div>
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body" style="text-align:center; min-height:200px; max-height:200px;">
+                <img src="/images/images.jfif" id="profilePhoto" class="imageDisplay img-thumbnail" style="min-height:200px; max-height:200px;" />
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12">
+        @(Html.Kendo().Upload()
+            .Name("file")
+            .Validation(validation =>
+            {
+                validation.AllowedExtensions(new string[] { ".jpg", ".jpeg", ".png", ".bmp", ".gif" });
+                validation.MaxFileSize(500000);
+            })
+            .Multiple(false)
+            .Async(a => a.AutoUpload(true))
+            .Events(e => e.Select("onSelectImg"))
+        )
+    </div>
+</div>
+@(Html.TextBoxFor(model => model.Image, new { type="hidden", style = "width:100%", @class = "k-textbox", data_bind = "value:Image" }))
+
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.FirstName))</i>
+    @(Html.TextBoxFor(model => model.FirstName, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:FirstName" }))
+</label>
+
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.LastName))</i>
+    @(Html.TextBoxFor(model => model.LastName, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:LastName" }))
+</label>
+
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.ScannerMobile))</i>
+    @(Html.TextBoxFor(model => model.ScannerMobile, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:ScannerMobile" }))
+</label>
+
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.MobilePhone))</i>
+    @(Html.TextBoxFor(model => model.MobilePhone, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:MobilePhone" }))
+</label>
+
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.Email))</i>
+    @(Html.TextBoxFor(model => model.Email, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:Email" }))
+</label>
+
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.Height))</i>
+    @(Html.TextBoxFor(model => model.Height, new { style = "width:100%", @class = "k-textbox", data_bind = "value:Height" }))
+</label>
+
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>Select&nbsp;@(Html.LabelFor(model => model.GenderId))</i>
+    @(Html.Kendo().DropDownListFor(model => model.GenderId)
+        .HtmlAttributes(new { required = "required", style = "width:100%;", data_value_primitive = "true", data_bind = "value:GenderId" })
+        .Filter(FilterType.Contains)
+        .OptionLabel("Select Gender...")
+        .DataTextField("Description")
+        .DataValueField("GenderId")
+        .BindTo((System.Collections.IEnumerable)ViewData["gender"])
+    )
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>Select&nbsp;@(Html.LabelFor(model => model.MemberStatusId))</i>
+    @(Html.Kendo().DropDownListFor(model => model.MemberStatusId)
+         .HtmlAttributes(new { required = "required", style = "width:100%;", data_value_primitive = "true", data_bind = "value:MemberStatusId" })
+         .Filter(FilterType.Contains)
+         .OptionLabel("Select Member Status...")
+         .DataTextField("Status")
+         .DataValueField("MemberStatusId")
+         .BindTo((System.Collections.IEnumerable)ViewData["status"])
+    )
+</label>
+
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>@(Html.LabelFor(model => model.Dob))</i>
+    @(Html.Kendo().DatePicker()
+        .Animation(true)
+        .Name("datepicker")
+        .Value(DateTime.Now)
+        .HtmlAttributes(new { style = "width: 100%", title = "Date of Birth", data_bind = "value:Dob" })
+        .DateInput()
+    )
+</label>
+
+

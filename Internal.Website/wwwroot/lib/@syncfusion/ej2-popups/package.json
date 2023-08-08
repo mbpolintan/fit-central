@@ -1,0 +1,91 @@
+{
+  "_from": "@syncfusion/ej2-popups@~18.2.46",
+  "_id": "@syncfusion/ej2-popups@18.2.46",
+  "_inBundle": false,
+  "_integrity": "sha512-bDYUcapsvUCbnzRSyAdphp1WYSbkyDKhBSbArMpofIPag5Jq0vtj0YjBWGAQCf/o247tohpnHy1G8DvfK2SlQA==",
+  "_location": "/@syncfusion/ej2-popups",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-popups@~18.2.46",
+    "name": "@syncfusion/ej2-popups",
+    "escapedName": "@syncfusion%2fej2-popups",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.46",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.46"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2",
+    "/@syncfusion/ej2-calendars",
+    "/@syncfusion/ej2-diagrams",
+    "/@syncfusion/ej2-documenteditor",
+    "/@syncfusion/ej2-dropdowns",
+    "/@syncfusion/ej2-filemanager",
+    "/@syncfusion/ej2-gantt",
+    "/@syncfusion/ej2-grids",
+    "/@syncfusion/ej2-inplace-editor",
+    "/@syncfusion/ej2-inputs",
+    "/@syncfusion/ej2-kanban",
+    "/@syncfusion/ej2-lineargauge",
+    "/@syncfusion/ej2-navigations",
+    "/@syncfusion/ej2-notifications",
+    "/@syncfusion/ej2-pdfviewer",
+    "/@syncfusion/ej2-pivotview",
+    "/@syncfusion/ej2-richtexteditor",
+    "/@syncfusion/ej2-schedule",
+    "/@syncfusion/ej2-splitbuttons",
+    "/@syncfusion/ej2-treegrid"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-popups/-/ej2-popups-18.2.46.tgz",
+  "_shasum": "7bfd0d64ccd0fa8c7f6ca3ac77ae827b5d8841a3",
+  "_spec": "@syncfusion/ej2-popups@~18.2.46",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bugs": {
+    "url": "https://github.com/syncfusion/ej2-javascript-ui-controls/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.44",
+    "@syncfusion/ej2-buttons": "~18.2.44"
+  },
+  "deprecated": false,
+  "description": "A package of Essential JS 2 popup components such as Dialog and Tooltip that is used to display information or messages in separate pop-ups.",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-popups.es2015.js",
+  "homepage": "https://github.com/syncfusion/ej2-javascript-ui-controls#readme",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "web-components",
+    "javascript",
+    "typescript",
+    "dialog",
+    "modal",
+    "popup",
+    "alert",
+    "tooltip",
+    "hint",
+    "spinner",
+    "waiting-popup",
+    "loading-indicator",
+    "loader",
+    "busy-indicator",
+    "waitingfor-loader"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-popups.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-popups",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syncfusion/ej2-javascript-ui-controls.git"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.46"
+}

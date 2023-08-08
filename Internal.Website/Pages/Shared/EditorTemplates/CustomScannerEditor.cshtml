@@ -1,0 +1,24 @@
+﻿@model DataAccess.Models.Scanner
+@using Kendo.Mvc.UI
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.ScannerName))</i>
+    @(Html.TextBoxFor(model => model.ScannerName, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:ScannerName" }))
+</label>
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.SerialNo))</i>
+    @(Html.TextBoxFor(model => model.SerialNo, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:SerialNo" }))
+</label>
+
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i>@(Html.LabelFor(model => model.PurchaseDate))</i>
+    @(Html.Kendo().DatePicker()
+        .Animation(true)
+        .Name("datepicker")
+        .Value(DateTime.Now)
+        .HtmlAttributes(new { style = "width: 100%", title = "Purchase Date", data_bind = "value:PurchaseDate" })
+        .DateInput()
+    )
+</label>

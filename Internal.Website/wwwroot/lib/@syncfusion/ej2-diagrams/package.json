@@ -1,0 +1,66 @@
+{
+  "_from": "@syncfusion/ej2-diagrams@~18.2.48",
+  "_id": "@syncfusion/ej2-diagrams@18.2.48",
+  "_inBundle": false,
+  "_integrity": "sha512-6UdR7IxHwUVMLhtqHm57a6Dh3S0AeKAz8P6h2xYdpxsLODGZ0zcaDJ5ZUAiu5oweEkhjC4hYThpzeG09s0SjVA==",
+  "_location": "/@syncfusion/ej2-diagrams",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-diagrams@~18.2.48",
+    "name": "@syncfusion/ej2-diagrams",
+    "escapedName": "@syncfusion%2fej2-diagrams",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.48",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.48"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-diagrams/-/ej2-diagrams-18.2.48.tgz",
+  "_shasum": "aa61ce90e0ed54a09ceb4c7dcabec2f3e501daf7",
+  "_spec": "@syncfusion/ej2-diagrams@~18.2.48",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bugs": {
+    "url": "https://github.com/syncfusion/ej2-javascript-ui-controls/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.47",
+    "@syncfusion/ej2-buttons": "~18.2.44",
+    "@syncfusion/ej2-data": "~18.2.44",
+    "@syncfusion/ej2-inputs": "~18.2.48",
+    "@syncfusion/ej2-lists": "~18.2.48",
+    "@syncfusion/ej2-navigations": "~18.2.47",
+    "@syncfusion/ej2-popups": "~18.2.46"
+  },
+  "deprecated": false,
+  "description": "Feature-rich diagram control to create diagrams like flow charts, organizational charts, mind maps, and BPMN diagrams. Its rich feature set includes built-in shapes, editing, serializing, exporting, printing, overview, data binding, and automatic layouts.",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-diagrams.es2015.js",
+  "homepage": "https://www.syncfusion.com/products/javascript/diagram",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "ej2-diagram",
+    "web-components",
+    "TypeScript",
+    "diagram"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-diagrams.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-diagrams",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syncfusion/ej2-javascript-ui-controls.git"
+  },
+  "sideEffects": true,
+  "typings": "index.d.ts",
+  "version": "18.2.48"
+}

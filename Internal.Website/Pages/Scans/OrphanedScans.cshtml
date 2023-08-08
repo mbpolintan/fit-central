@@ -1,0 +1,204 @@
+﻿@page
+@model StudioCentral.OrphanedScansModel
+@using DataAccess.Models
+@using StudioCentral.ViewModels
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{
+    ViewData["Title"] = "Orphaned Scans";
+}
+
+<div class="col-md-5 text-left" style="padding:0.5em">
+    @Html.Label("Studios: ")
+        @(Html.Kendo().DropDownList()
+        .Name("Studio")
+        .DataTextField("StudioName")
+        .DataValueField("StudioId")
+        .Events(e => e.Change("onChangeStudio"))
+        .BindTo((System.Collections.IEnumerable)ViewData["Studios"])
+        .HtmlAttributes(new { style = "width:50%;" })
+    )
+</div>
+
+<div class="bg-dark content-maint mh-100 min-vh-100">
+    @*@foreach (var error in Model.Errors)
+        {
+
+            <script>
+                iziToast.error({
+                    title: '@error.Field',
+                    message: '@error.Message',
+                    position: 'center'
+                });
+            </script>
+        }*@
+    <div class="row">
+        <div class="col text-center">
+            <h4 class="k-primary">
+                <small class="k-text-primary">@ViewData["Title"]</small>
+            </h4>
+        </div>
+    </div>
+    <div class="row mh-100 min-vh-100">
+        <div class="col mh-100 min-vh-100">
+        @Html.AntiForgeryToken()
+        @(Html.Kendo().Grid<ScansImport>()
+            .Name("gridImports")
+            .Columns(columns =>
+            {
+                columns.ForeignKey(o => o.ScannerId, (System.Collections.IEnumerable)ViewData["scanner"], "ScannerId", "ScannerName").Title("Scanner").Width("30%");
+                columns.Bound(e => e.ImportDate).Width("10%").Format("{0: yyyy-MM-dd}").Title("Date Imported");
+                columns.Bound(e => e.ScanCount).Width("15%").Title("Number of Scanned Records");
+                columns.Bound(e => e.CreatedScans).Width("15%").Title("Number of New Records");
+                columns.Bound(e => e.UpdatedScans).Width("15%").Title("Number of Updated Records");               
+            })
+            .Navigatable()
+            .Sortable()
+            .Filterable()
+            .Mobile()
+            .HtmlAttributes(new { style = "height:100%; width:auto; font-size:13px;" })
+            .Pageable(p =>
+            {
+                p.ButtonCount(5);
+                p.PageSizes(true);
+            })
+            .ToolBar(tb =>
+            {
+                tb.Search();
+            })
+            .Search(search =>
+            {
+                search
+                .Field(f => f.Scanner.ScannerName)
+                .Field(f => f.ImportDate);
+            })
+            .Scrollable(scr => scr.Height(500))
+            .ClientDetailTemplateId("templateOrphaned")
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(10)
+                .Read(r => r.Url("/Scans/OrphanedScans?handler=Read").Data("forgeryToken"))
+            )
+            .Events(events =>
+                events
+                .DataBound("onDataBoundImports")
+            )
+        )
+        </div>
+    </div>
+</div>
+
+<script id="templateOrphaned" type="text/kendo-tmpl">
+    @Html.AntiForgeryToken()
+    @(Html.Kendo().Grid<ReportScanViewModel>()
+        .Name("grid_#=ScansImportId#")
+        .Columns(columns =>
+        {           
+            columns.Bound(o => o.TestDateTime).Title("Scan Date").Format("{0: yyyy-MM-dd}").Width("25%");
+            columns.Bound(o => o.MobileNumber).Title("Mobile Number").Width("25%");
+            columns.Bound(o => o.Height).Title("Height").Width("15%"); ;
+            columns.Bound(o => o.Weight).Title("Weight (kg)").Width("15%");
+            columns.Bound(o => o.Age).Title("Age").Width("15%");
+            columns.Command(c =>
+            {
+                c.Edit().Text(" ").IconClass("k-icon k-i-edit").HtmlAttributes(new { style = "align-text:center" });
+            }).Title("Update");
+        })
+        .ToolBar(tb =>
+        {
+            tb.Search();
+        })
+        .Search(search =>
+        {
+            search
+            .Field(f => f.TestDateTime)
+            .Field(f => f.MobileNumber);
+        })
+        .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("CustomOrphanedScanEditor"))
+        .Navigatable()
+        .Sortable()
+        .Filterable()
+        .Mobile()
+        .Scrollable(scr => scr.Height(500))
+        .HtmlAttributes(new { style = "height:100%; width:auto; font-size:13px;" })
+        .Pageable(p =>
+        {
+            p.ButtonCount(5);
+            p.PageSizes(true);
+        })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .Read(r => r.Url("/Scans/OrphanedScans?handler=ReadScan&importedScanId=#=ScansImportId#").Data("forgeryToken"))
+            .Update(u => u.Url("/Scans/OrphanedScans?handler=UpdateScan").Data("forgeryToken"))
+            .Model(m =>
+            {
+                m.Id(id => id.ScanId);
+                m.Field(f => f.MemberId);
+            })
+            .PageSize(10)
+        )
+        .Events(events => events.Save("onSave"))
+        .ToClientTemplate()
+    )
+</script>
+
+<script>
+    var studioId = 0;
+
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function onChangeStudio(e) {
+        $("#Studio").closest(".k-widget").attr("id", "memberStudio");
+        var dropdownlist = $("#Studio").data("kendoDropDownList"),
+            setValue = function (e) {
+                if (e.type != "keypress" || kendo.keys.ENTER == e.keyCode)
+                    dropdownlist.value($("#value").val());
+            },
+            setIndex = function (e) {
+                if (e.type != "keypress" || kendo.keys.ENTER == e.keyCode) {
+                    var index = parseInt($("#index").val());
+                    dropdownlist.select(index);
+                }
+            },
+            setSearch = function (e) {
+                if (e.type != "keypress" || kendo.keys.ENTER == e.keyCode)
+                    dropdownlist.search($("#word").val());
+            };
+
+        studioId = dropdownlist.value();
+        var gridObject = $("#gridImports").data("kendoGrid")
+        gridObject.dataSource.transport.options.read.url = "/Scans/OrphanedScans?handler=Read&studioId=" + studioId;
+        gridObject.dataSource.read();
+    }
+
+    function onDataBoundImports(e) {
+        //position the add new button to the left.
+        $(".k-grid-toolbar").addClass("text-left");
+    }
+
+    function onGridSave(arg) {
+        var closestGridElement = arg.sender.element.closest('[data-role="grid"]');
+        var gridId = closestGridElement.attr('id');
+        var id = gridId[gridId.length - 1];
+        console.log(id);
+        console.log(closestGridElement.data("kendoGrid"));
+
+        var gridObject = closestGridElement.data("kendoGrid")
+        gridObject.dataSource.transport.options.read.url = "/Scans/OrphanedScans?handler=ReadScan&importedScanId=" + id;
+        gridObject.dataSource.read();
+    }
+
+    function onSave(e) {
+        e.sender.one("dataBound", function () {
+            var closestGridElement = e.sender.element.closest('[data-role="grid"]');
+            var gridId = closestGridElement.attr('id');
+            var id = gridId[gridId.length - 1];
+            var gridObject = closestGridElement.data("kendoGrid")
+            gridObject.dataSource.transport.options.read.url = "/Scans/OrphanedScans?handler=ReadScan&importedScanId=" + id;
+            gridObject.dataSource.read();
+        });
+    }
+
+</script>
+

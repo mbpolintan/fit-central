@@ -1,0 +1,69 @@
+{
+  "_from": "@syncfusion/ej2-compression@~18.2.48",
+  "_id": "@syncfusion/ej2-compression@18.2.48",
+  "_inBundle": false,
+  "_integrity": "sha512-oB9bx8VrYWXWOHijV9AnDFPx6ZdSeW3RziitYZGlB7U2akkmjCvVasJqOpgVlP7cEh+UTInB/zSZzMRSG8CbIw==",
+  "_location": "/@syncfusion/ej2-compression",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-compression@~18.2.48",
+    "name": "@syncfusion/ej2-compression",
+    "escapedName": "@syncfusion%2fej2-compression",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.48",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.48"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2",
+    "/@syncfusion/ej2-charts",
+    "/@syncfusion/ej2-documenteditor",
+    "/@syncfusion/ej2-excel-export",
+    "/@syncfusion/ej2-grids",
+    "/@syncfusion/ej2-heatmap",
+    "/@syncfusion/ej2-maps",
+    "/@syncfusion/ej2-pdf-export",
+    "/@syncfusion/ej2-pivotview",
+    "/@syncfusion/ej2-treemap"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-compression/-/ej2-compression-18.2.48.tgz",
+  "_shasum": "c5080b5c0ea4dbf70eaf11fc5f1d60e0af6683ae",
+  "_spec": "@syncfusion/ej2-compression@~18.2.48",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bugs": {
+    "url": "https://github.com/syncfusion/ej2-javascript-ui-controls/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-file-utils": "~18.2.48"
+  },
+  "deprecated": false,
+  "description": "Essential Javascript 2 Compression library",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-compression.es2015.js",
+  "homepage": "https://github.com/syncfusion/ej2-javascript-ui-controls#readme",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "Javascript",
+    "TypeScript",
+    "js",
+    "compression"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-compression.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-compression",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syncfusion/ej2-javascript-ui-controls.git"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.48"
+}

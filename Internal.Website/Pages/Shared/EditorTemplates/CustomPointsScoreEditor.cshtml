@@ -1,0 +1,38 @@
+﻿
+@model DataAccess.Models.PointsSystem
+@using Kendo.Mvc.UI
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.PointsAllocation))</i>
+    @(Html.TextBoxFor(model => model.PointsAllocation, new { @class = "k-textbox", Type = "number", required = "required", style = "width:100%;float:left;overflow:hidden;", data_bind = "value:PointsAllocation" }))
+</label>
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    @(Html.LabelFor(model => model.BeforeAndAfterPicture, new {  style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.BeforeAndAfterPicture, new { @class = "k-textbox", Type ="number", required = "required", style = "width:100%;float:left;overflow:hidden;", data_bind = "value:BeforeAndAfterPicture" }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    @(Html.LabelFor(model => model.InbodyScore, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.InbodyScore, new { style = "width:100%;float:left;overflow:hidden;", @class = "k-textbox", data_bind = "value:InbodyScore" }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    @(Html.LabelFor(model => model.WeightLoss, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.WeightLoss, new { @class = "k-textbox", style = "width:100%;float:left;overflow:hidden;", Type = "number", data_bind = "value:WeightLoss" }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    @(Html.LabelFor(model => model.Pbfloss, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.Pbfloss, new { @class = "k-textbox", style = "width:100%;float:left;overflow:hidden;", Type = "number", data_bind = "value:Pbfloss" }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    @(Html.LabelFor(model => model.Smmgain, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.Smmgain, new { @class = "k-textbox", style = "width:100%;float:left;overflow:hidden;", Type = "number", data_bind = "value:Smmgain" }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    @(Html.LabelFor(model => model.Vflloss, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.Vflloss, new { @class = "k-textbox", style = "width:100%;float:left;overflow:hidden;", Type = "number", data_bind = "value:Vflloss" }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    @(Html.LabelFor(model => model.ClassAttended, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.ClassAttended, new { @class = "k-textbox", style = "width:100%;float:left;overflow:hidden;", Type = "number", data_bind = "value:ClassAttended" }))
+</label>
+

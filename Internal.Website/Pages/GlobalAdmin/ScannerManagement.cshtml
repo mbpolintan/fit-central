@@ -1,0 +1,179 @@
+﻿@page
+@model StudioCentral.ScannerManagementModel
+@using DataAccess.Models;
+@using StudioCentral.ViewModels;
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{
+    ViewData["Title"] = "Scanner Management";
+}
+
+<div class="bg-dark content-maint mh-100 min-vh-100">
+    @foreach (var error in Model.Errors)
+    {
+
+
+        <script>
+                iziToast.error({
+                    title: '@error.Field',
+                    message: '@error.Message',
+                    position: 'center'
+                });
+        </script>
+    }
+    <div class="row">
+
+        <div class="col text-center">
+            <h4 class="k-primary">
+                <small class="k-text-primary">@ViewData["Title"]</small>
+            </h4>
+        </div>
+
+    </div>
+    <div class="row mh-100 min-vh-100">
+        <div class="col mh-100 min-vh-100">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger text-danger"></div>
+            @Html.AntiForgeryToken()
+            @(Html.Kendo().Grid<Scanner>()
+                .Name("grdScanner")
+                .Columns(columns =>
+                {
+                    columns.Bound(c => c.ScannerName).Width("45%");
+                    columns.Bound(c => c.SerialNo).Width("20%");
+                    columns.Bound(c => c.PurchaseDate).Width("15%").Format("{0:d}");
+                    columns.Command(c =>
+                    {
+                        c.Edit().Text(" ").IconClass("k-icon k-i-edit").HtmlAttributes(new { style = "align-text:center" });
+                        c.Destroy().Text(" ").IconClass("k-icon k-i-delete").HtmlAttributes(new { style = "align-text:center" });
+
+                    }).Title("Actions").Width("15%").HtmlAttributes(new { @class = "text-center" }).HeaderHtmlAttributes(new { @class = "text-center" });
+                }).HtmlAttributes(new { @class = "text-center" })
+                .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("CustomScannerEditor").Window(w => w.Title("New Scanner Details"))
+                )
+                .Navigatable()
+                .Filterable(filterable => filterable
+                    .Extra(false)
+                    .Operators(operators => operators
+                        .ForString(str => str.Clear()
+                            .StartsWith("Starts with")
+                            .IsEqualTo("Is equal to")
+                            .IsNotEqualTo("Is not equal to")
+                        ))
+                    )
+                .Mobile()
+                .Sortable()
+                .Scrollable(scr => scr.Height(400))
+                .HtmlAttributes(new { style = "height:100%; width:auto; font-size:13px;" })
+                .ClientDetailTemplateId("template")
+                .Pageable(p =>
+                {
+                    p.ButtonCount(5);
+                    p.PageSizes(true);
+                })
+                .ToolBar(tb =>
+                {
+                    tb.Create().Text("New Scanner").IconClass("k-icon .k-i-marker-pin");
+                    tb.Search();
+                })
+                .Search(search =>
+                {
+                    search.Field(f => f.ScannerName);
+                })
+                .Events(e => e
+                    .DataBound("onDataBound")
+                    .SaveChanges("onGridSave")
+                    .Save("onGridSave")
+                )
+                .DataSource(ds => ds.Ajax()
+                    .PageSize(10)
+                    .Create(c => c.Url("/GlobalAdmin/ScannerManagement?handler=Create").Data("forgeryToken"))
+                    .Read(r => r.Url("/GlobalAdmin/ScannerManagement?handler=Read").Data("forgeryToken"))
+                    .Update(u => u.Url("/GlobalAdmin/ScannerManagement?handler=Update").Data("forgeryToken"))
+                    .Destroy(d => d.Url("/GlobalAdmin/ScannerManagement?handler=Destroy").Data("forgeryToken"))
+                    .Model(m =>
+                    {
+                        m.Id(id => id.ScannerId);
+                        m.Field(x => x.ScannerId).Editable(false);
+                    })
+                )
+            )
+        </div>
+    </div>
+</div>
+
+
+<script id="template" type="text/kendo-tmpl">
+    @Html.AntiForgeryToken()
+    @(Html.Kendo().Grid<StudioScannerViewModel>()
+        .Name("grid_#=ScannerId#")
+        .Columns(columns =>
+        {
+            columns.ForeignKey(o => o.StudioId, (System.Collections.IEnumerable)ViewData["studios"], "StudioId", "StudioName")
+            .Title("Studio Name").Width("90%").HeaderHtmlAttributes(new { style = "text-align:center" });
+            columns.Command(c =>
+            {
+                 c.Destroy().Text(" ").IconClass("k-icon k-i-delete").HtmlAttributes(new { style = "align-text:center" });
+            }).Title("Remove").Width("15%").HtmlAttributes(new { @class = "text-center" }).HeaderHtmlAttributes(new { @class = "text-center" });
+        })
+        .ToolBar(tb =>
+        {
+            tb.Create().Text("New Studio").IconClass("k-icon .k-i-marker-pin");
+        })
+
+        .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("CustomStudioScannerEditor").Window(w => w.Title("Assign New Studio")))
+        .Navigatable()
+        .Sortable()
+        .Filterable(filterable => filterable
+                    .Extra(false)
+                    .Operators(operators => operators
+                        .ForString(str => str.Clear()
+                            .StartsWith("Starts with")
+                            .IsEqualTo("Is equal to")
+                            .IsNotEqualTo("Is not equal to")
+                        ))
+                    )
+        .Mobile()
+        .Scrollable(scr => scr.Height(200))
+        .HtmlAttributes(new { style = "height:100%; width:auto; font-size:13px;" })
+        .Pageable(p =>
+        {
+            p.ButtonCount(5);
+            p.PageSizes(true);
+        })
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .Read(r => r.Url("/GlobalAdmin/ScannerManagement?handler=ReadStudio&scannerId=#=ScannerId#").Data("forgeryToken"))
+            .Create(c => c.Url("/GlobalAdmin/ScannerManagement?handler=CreateStudio&scannerId=#=ScannerId#").Data("forgeryToken"))
+            .Destroy(d => d.Url("/GlobalAdmin/ScannerManagement?handler=DestroyStudio").Data("forgeryToken"))
+            .Model(m =>
+            {
+                m.Id(id => id.ScannerId);
+            })
+            .PageSize(10)
+        )
+        .Events(events => events.Save("onGridSave").SaveChanges("onGridSave"))
+        .ToClientTemplate()
+    )
+
+</script>
+
+<script>
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function onGridSave(e) {
+        e.sender.one("dataBound", function () {
+            e.sender.dataSource.read();
+           reloadPage();
+        });
+    }
+
+     function reloadPage() {
+        location.reload(true);
+    }
+
+    function onDataBound(e) {
+        //position the add new button to the left.
+        $(".k-grid-toolbar").addClass("text-left");
+    }
+</script>

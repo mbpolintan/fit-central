@@ -1,0 +1,700 @@
+﻿@page
+@model Internal.Website.ChallengeLeaderboardModel
+@using DataAccess.ViewModels
+@using DataAccess.Models
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{ ViewData["Title"] = "Challenge Leaderboard"; }
+
+    <div class="bg-light">
+        <div class="col text-left">
+            <h4 class="k-primary">
+                <small class="k-text-primary">@ViewData["Title"]</small>
+            </h4>
+        </div>
+        <div class="col-md-5 text-left">
+            @Html.Label("Studios: ")
+            @(Html.Kendo().DropDownList()
+            .Name("Studio").HtmlAttributes(new { style = "width:30%;" })
+            .DataTextField("StudioName")
+            .DataValueField("StudioId")
+            .Events(e => e.Change("onChangeStudio"))
+            .BindTo((System.Collections.IEnumerable)ViewData["Studios"]))
+
+            @(Html.Label("Challenge No"))
+            @(Html.Kendo().DropDownList()
+            .HtmlAttributes(new { required = "required", style = "width:10%; text-center" })
+            .Name("ChallengeId")
+            .DataValueField("ChallengeId")
+            .DataTextField("ChallengeNo")
+            .Events(e => e.Change("onChange"))
+            .SelectedIndex(0)
+            .Enable(false)
+            .AutoBind(false)
+            .CascadeFrom("Studio")
+            .DataSource(source =>source
+            .Read(read => read.Url("/Challenges/ChallengeSetup?handler=ReadGymChallenges").Data("filterChallenge"))
+            .ServerFiltering(true)))
+
+            @(Html.Label("Scan"))
+            @(Html.Kendo().DropDownList()
+            .HtmlAttributes(new { required = "required", style = "width:15%; text-center" })
+            .Name("ScanLeaderBoard")
+            .DataValueField("Value")
+            .DataTextField("Text")
+            .Value("2")
+            .Events(e => e.Change("onChangeScans"))
+            .BindTo(new List<SelectListItem>() {
+                new SelectListItem() { Text = "Mid Scan", Value = "1"},
+                new SelectListItem() { Text = "End Scan", Value = "2"}
+            }))
+
+        </div>
+        @(Html.Kendo().PanelBar()
+                .Name("panelbar")
+                .ExpandMode(PanelBarExpandMode.Multiple)
+                .Items(panelbar => { panelbar
+                    .Add().Text("Statistics")
+                    .Expanded(true)
+                    .Content(@<div class="k-content wide" style="height:15vw; padding-top:1vw">
+                        <div id="genderGrid" class="col-md-2" style="width:100%;float:left;overflow:hidden;">
+                            @(Html.Kendo().Grid<ChallengeGenderCount>()
+                        .Name("grdGenderCount")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.Male).Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                            columns.Bound(c => c.Female).Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                            columns.Bound(c => c.Undisclose).Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                            columns.Bound(c => c.TMember).Title("Total").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                        })
+                        .HtmlAttributes(new { @class = "text-center" , style = "height:auto; width:auto;" })
+                        .Events(e => e.DataBinding("onDataBoundGender"))
+                        .DataSource(ds => ds.Ajax()
+                            .Read(r => r.Url("").Data("forgeryToken"))
+                            .ServerOperation(false)))
+                            <div id="genderChart" class="col-md-12" style="width:100%;float:left;overflow:hidden;"></div>
+                        </div>
+                        <div class="statistics col-md-10 text-center" style="float:right;overflow:hidden;">
+                            <h6>Statistics</h6>
+                            <div class="circle text-center"><span style="font-size:2vw;" id="Age">0</span><br /><span style="font-size:0.5vw;">Average Age</span></div>&nbsp;&nbsp;
+                            <div class="circle text-center"><span style="font-size:2vw;" id="ImageScore">0</span><br /><span style="font-size:0.5vw;">Average ImageScore</span></div>&nbsp;&nbsp;
+                            <div class="circle text-center"><span style="font-size:2vw;" id="InbodyScore">0</span><br /><span style="font-size:0.5vw;">Average InbodyScore</span></div>&nbsp;&nbsp;
+                            <div class="circle text-center"><span style="font-size:2vw;" id="PBF">0</span><br /><span style="font-size:0.5vw;">Average PBF</span></div>&nbsp;&nbsp;
+                            <div class="circle text-center"><span style="font-size:2vw;" id="SMM">0</span><br /><span style="font-size:0.5vw;">Average SMM</span></div>&nbsp;&nbsp;
+                            <div class="circle text-center"><span style="font-size:2vw;" id="VFL">0</span><br /><span style="font-size:0.5vw;">Average VFL</span></div>&nbsp;&nbsp;
+                        </div>
+                    </div>);
+                panelbar.Add().Text("Leaderboard")
+                    .Expanded(true)
+                    .Content(@<div class="col-md-12 mh-100 min-vh-100">
+                        @Html.AntiForgeryToken()
+                        @(Html.Kendo().Grid<ChallengeLeaderBoardViewModel>()
+                        .Name("grdLeaderBoard")
+                        .Columns(columns =>
+                        {
+                            columns.Bound(c => c.DisplayName).Width("15%").Title("Name").HeaderHtmlAttributes(new { style = "text-align:center" });//0
+                            columns.Bound(c => c.Gender).Title("Gender").HeaderHtmlAttributes(new { style = "text-align:center" });//1
+                            columns.Bound(c => c.Age).Title("Age").HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });//2
+                            columns.Bound(c => c.ImageScore).Title("Image Score").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });//3
+                            columns.Bound(c => c.MidInBodyTotal).Title("In Body Score (Gain)").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //4
+                            columns.Bound(c => c.MidWeightTotal).Format("{0:n3}%").Title("Weight (Loss)").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //5
+                            columns.Bound(c => c.MidPbftotal).Format("{0:n3}%").Title("PBF (Loss)").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //6
+                            columns.Bound(c => c.MidSmmtotal).Format("{0:n3}%").Title("SMM (Gain)").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //7
+                            columns.Bound(c => c.MidVfltotal).Title("VFL (Loss)").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //8
+                            columns.Bound(c => c.EndInBodyTotal).Title("In Body Score (Gain)").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //9
+                            columns.Bound(c => c.EndWeightTotal).Format("{0:n3}%").Title("Weight (Loss)").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //10
+                            columns.Bound(c => c.EndPbftotal).Format("{0:n3}%").Title("PBF (Loss)").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //11
+                            columns.Bound(c => c.EndSmmtotal).Format("{0:n3}%").Title("SMM (Gain)").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //12
+                            columns.Bound(c => c.EndVfltotal).Title("VFL (Loss)").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //13
+                            columns.Bound(c => c.AttendedClass).Title("Total Class Attended").Filterable(false)
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //14
+                            columns.Bound(c => c.AccumulatedScore).Title("Total Score").Filterable(false)
+                           .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" }); //15
+                        })
+                        .HtmlAttributes(new { @class = "text-center" })
+                        .ClientDetailTemplateId("template")
+                        .Navigatable()
+                        .Filterable(filterable => filterable.Extra(false)
+                            .Operators(operators => operators.ForString(str => str.Clear().StartsWith("Starts with") .IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                        .Mobile().Sortable()
+                        .HtmlAttributes(new { style = "height:auto; width:auto; font-size:13px;", @class = "min-vh-100" })
+                        .Scrollable(scr => scr.Endless(true))
+                        .ToolBar(tb =>
+                        {
+                            tb.Search();
+                            tb.Excel();
+                        })
+                        .Excel(excel => excel.Filterable(true).AllPages(true).ProxyURL(Url.Action("Excel_Export_Save")))
+                        .Events(e => e.DataBound("onDataBound").DetailExpand("onGroupExpand").ExcelExport("onExportToExcel"))
+                        .DataSource(ds => ds.Ajax()
+                            .Read(r => r.Url("").Data("forgeryToken"))
+                            .Model(m => m.Id(id => id.ChallengeMemberId))
+                            .ServerOperation(false)))
+                        </div>);
+                }))
+    </div>
+
+<script id="template" type="text/kendo-tmpl">
+    @(Html.Kendo().TabStrip()
+        .Name("tabStrip_#=ChallengeMemberId#")
+        .SelectedIndex(0)
+        .Animation(animation => animation.Open(open => open.Fade(FadeDirection.In)))
+        .Items(items => {
+                items.Add().Text("Scans")
+                .Content(@<text>
+                    <div class="chart-wrapper">
+                    <h6>Scans Chart</h6>
+                    <div id="chart-#=ChallengeMemberId#" style="width:100%;"></div>
+                    </div>
+                    @Html.AntiForgeryToken()
+                    @(Html.Kendo().Grid<ScanViewModel>()
+                        .Name("grid_#=ChallengeMemberId#")
+                        .Columns(columns => {
+                            columns.Bound(e => e.TestDateTime).Width("20%").Format("{0:g}").Title("Test Date Time")
+                            .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                            columns.Bound(e => e.InBodyScore).Width("20%").Format("{0:n2}").Title("In Body Score").HtmlAttributes(new { style = "text-align:right" })
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                            columns.Bound(e => e.Weight).Width("20%").Format("{0:n2}").Title("Weight").HtmlAttributes(new { style = "text-align:right" })
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                            columns.Bound(e => e.Pbf).Width("20%").Format("{0:n2}").Title("Percentage Body Fat").HtmlAttributes(new { style = "text-align:right" })
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                            columns.Bound(e => e.Smm).Width("20%").Format("{0:n2}").Title("Skeletal Muscle Mass").HtmlAttributes(new { style = "text-align:right" })
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                            columns.Bound(e => e.Vfl).Width("20%").Title("Visceral Fat Level").HtmlAttributes(new { style = "text-align:right" })
+                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                        })
+                        .Navigatable()
+                        .Sortable()
+                        .Scrollable(sc => sc.Endless(true))
+                        .Filterable(filterable => filterable.Extra(false).Operators(operators => operators.ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                        .Mobile()
+                        .HtmlAttributes(new { style = "width:100%; height:200px; font-size:13px; padding:0" })
+                        .DataSource(dataSource => dataSource
+                        .Ajax()
+                        .Read(r => r.Url("/Challenges/ChallengeLeaderboard?handler=ReadMemberScans&challengeMemberId=#=ChallengeMemberId#").Data("forgeryToken")))
+                        .ToClientTemplate())
+                </text>);
+                items.Add().Text("Before & After")
+                .Content(@<text>
+                <h6>Challenge Images</h6>
+                <div class="col-md-6" style="overflow:hidden; float:left">
+                    <h6>Before</h6>
+                    <div class="col-md-4" style="overflow:hidden; float:left">
+                        <div class="card">
+                            <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                                <img src="/images/images.jfif" id="before-front-#=ChallengeMemberId#" class="imageDisplay img-thumbnail before-front" style="min-height:150px; max-height:150px;" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="overflow:hidden; float:left">
+                        <div class="card">
+                            <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                                <img src="/images/images.jfif" id="before-side-#=ChallengeMemberId#" class="imageDisplay img-thumbnail before-side" style="min-height:150px; max-height:150px;" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="overflow:hidden; float:left">
+                        <div class="card">
+                            <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                                <img src="/images/images.jfif" id="before-back-#=ChallengeMemberId#" class="imageDisplay img-thumbnail before-back" style="min-height:150px; max-height:150px;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6" style="overflow:hidden; float:left">
+                    <h6>After</h6>
+                    <div class="col-md-4" style="overflow:hidden; float:left">
+                        <div class="card">
+                            <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                                <img src="/images/images.jfif" id="after-front-#=ChallengeMemberId#" class="imageDisplay img-thumbnail after-front" style="min-height:150px; max-height:150px;" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="overflow:hidden; float:left">
+                        <div class="card">
+                            <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                                <img src="/images/images.jfif" id="after-side-#=ChallengeMemberId#" class="imageDisplay img-thumbnail after-side" style="min-height:150px; max-height:150px;" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4" style="overflow:hidden; float:left">
+                        <div class="card">
+                            <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                                <img src="/images/images.jfif" id="after-back-#=ChallengeMemberId#" class="imageDisplay img-thumbnail after-back" style="min-height:150px; max-height:150px;" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </text>);
+                items.Add().Text("Class Attended Per Week")
+                .Content(@<text>
+                @Html.AntiForgeryToken()
+                @(Html.Kendo().Grid<ChallengeVisitPerWeekViewModel>()
+                    .Name("gridVisit_#=ChallengeMemberId#")
+                    .Columns(columns => {
+                        columns.Bound(e => e.Week).Title("Week")
+                        .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(e => e.Attendedclass).Title("Total Class Attended").HtmlAttributes(new { style = "text-align:center" })
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+
+                    })
+                    .Navigatable()
+                    .Sortable()
+                    .Scrollable(sc => sc.Endless(true))
+                    .Filterable(filterable => filterable.Extra(false).Operators(operators => operators.ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                    .Mobile()
+                    .HtmlAttributes(new { style = "width:100%; height:200px; font-size:13px; padding:0" })
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Read(r => r.Url("/Challenges/ChallengeLeaderboard?handler=ReadMemberVisits&challengeMemberId=#=ChallengeMemberId#").Data("forgeryToken")))
+                    .ToClientTemplate())
+                </text>);
+            items.Add().Text("Points Allocation")
+                .Content(@<text> 
+                @Html.AntiForgeryToken()
+                @(Html.Kendo().Grid<ChallengeMemberScoreViewModel>()
+                    .Name("gridScore_#=ChallengeMemberId#")
+                    .Columns(columns => {
+                        columns.Bound(c => c.ImageScore).Format("{0:n2}").Title("Image Score").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                        columns.Bound(c => c.InBodyScore).Format("{0:n2}").Title("Inbody Score").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                        columns.Bound(c => c.WeightScore).Format("{0:n2}").Title("Weight Score").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                        columns.Bound(c => c.PbfScore).Format("{0:n2}").Title("PBF Score").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                        columns.Bound(c => c.SmmScore).Format("{0:n2}").Title("SMM Score").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                        columns.Bound(c => c.VflScore).Format("{0:n2}").Title("VFL Score").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                        columns.Bound(c => c.AttendedClassScore).Format("{0:n2}").Title("Attendance Score").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                        columns.Bound(c => c.AccumulatedScore).Format("{0:n2}").Title("Total Score").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                    })
+                    .Navigatable()
+                    .Sortable()
+                    .Scrollable(sc => sc.Endless(true))
+                    .Filterable(filterable => filterable.Extra(false).Operators(operators => operators.ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                    .Mobile()
+                    .HtmlAttributes(new { style = "width:100%; height:200px; font-size:13px; padding:0" })
+                    .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Read(r => r.Url("/Challenges/ChallengeLeaderboard?handler=ReadChallengeMemberScore&challengeMemberId=#=ChallengeMemberId#").Data("forgeryToken")))
+                    .ToClientTemplate())
+                </text>);
+        }).ToClientTemplate())
+</script>
+
+<script>
+    var studioId = 0;
+    var challengeId = 0;
+    //var items = [];
+    var leaderboardTypeId = 0;
+    
+
+    $(document).ready(function () {
+         var studioName = '@Model.SelectedStudio.StudioName';
+        studioId = '@Model.SelectedStudio.StudioId';
+
+        var dropdownlist = $("#Studio").data("kendoDropDownList");
+        dropdownlist.text(studioName);
+        dropdownlist.value(studioId);
+        dropdownlist.trigger("change");
+
+        $(window).on("resize", function () {
+            kendo.resize($(".chart-wrapper"));
+        });
+        
+    });
+
+    function createChart(data) {  
+       
+        if (data.WithContent) {
+            $("#genderChart").kendoChart({
+                title: {
+                    position: "bottom",
+                    text: "Gender"
+                },
+                legend: {
+                    visible: false
+                },
+                chartArea: {
+                    background: "",
+                    height: 220
+                },
+                seriesDefaults: {
+                    labels: {
+                        visible: true,
+                        background: "transparent",
+                        template: "#= category #: \n #= value#%"
+                    }
+                },
+                series: [{
+                    type: "donut",
+                    startAngle: 150,
+                    size: 50,
+                    data: [{
+                        category: "Female",
+                        value: data.AverageFemale,
+                        color: "#ff3700"
+                    }, {
+                        category: "Male",
+                        value: data.AverageMale,
+                        color: "#ffc107"
+                    }, {
+                        category: "None",
+                        value: data.AverageUndisclose,
+                        color: "#6c757d"
+                    }],
+                    labels: {
+                        visible: true,
+                        background: "transparent",
+                        position: "center",
+                        template: "#= category #: \n #= value#%"
+                    }
+                }],
+                tooltip: {
+                    visible: true,
+                    format: "{0}%",
+                    template: "#= category # : #= value #%"
+                }
+            });
+
+            $("#Age").text(data.Age);
+            $("#ImageScore").text(data.ImageScore);
+            $("#InbodyScore").text(data.InbodyScore);
+            $("#PBF").text(data.PBF);
+            $("#SMM").text(data.SMM);
+            $("#VFL").text(data.VFL);
+
+
+            $("#leaderboardChart").kendoChart({
+                title: {
+                    position: "bottom",
+                    text: "Leader Board Statistics"
+                },
+                chartArea: {
+                    background: "",
+                },
+                legend: {
+                    position: "top"
+                },
+                seriesDefaults: {
+                    type: "column",
+                    background: "transparent"
+                },
+                series: [{
+                    name: "Age",
+                    data: data.Age
+                }, {
+                    name: "ImageScore",
+                    data: data.ImageScore
+                }, {
+                    name: "InbodyScore",
+                    data: data.InbodyScore
+                }, {
+                    name: "PBF",
+                    data: data.PBF
+                }, {
+                    name: "SMM",
+                    data: data.SMM
+                }, {
+                    name: "VFL",
+                    data: data.VFL
+                }],
+                valueAxis: {
+                    line: {
+                        visible: false
+                    },
+                    minorGridLines: {
+                        visible: true
+                    },
+                    labels: {
+                        background: "transparent",
+                        rotation: "auto"
+                    }
+                },
+                categoryAxis: {
+                    categories: "",
+                    majorGridLines: {
+                        visible: false
+                    }
+                },
+                tooltip: {
+                    visible: true,
+                    template: "#= series.name #: #= value #"
+                }
+            });
+
+        } else {
+            $("#genderChart").html("<span>No Member to this challenge</span>")
+        }
+
+
+    }
+
+    function createScanChart(challengeMemberId) {
+        var data = {
+            challengeMemberId: challengeMemberId,
+            studioId: studioId
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Challenges/ChallengeLeaderboard?handler=ReadScanChart",
+            data: data,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded",
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            success: function (result) {
+
+                $("#chart-" + challengeMemberId).kendoChart({
+                    legend: {
+                        position: "top"
+                    },
+                    chartArea: {
+                        background: "transparent",
+                        height: 300
+                    },
+                    seriesDefaults: {
+                        type: "line",
+                        style: "smooth"
+                    },
+                    series: [{
+                        name: "InBodyScore",
+                        data: result.InBodyScore
+                    }, {
+                        name: "Weight",
+                        data: result.Weight
+                    }, {
+                        name: "Percent Body Fat",
+                        data: result.Pbf
+                    }, {
+                        name: "Skeletal Muscle Mass",
+                        data: result.Smm
+                    }, {
+                        name: "Visceral Fat Level",
+                        data: result.Vfl
+                    }],
+                    valueAxis: {
+                        labels: {
+                            format: "{0}%"
+                        },
+                        line: {
+                            visible: false
+                        },
+                        axisCrossingValue: -10
+                    },
+                    categoryAxis: {
+                        categories: result.TestDateTime,
+                        majorGridLines: {
+                            visible: false
+                        },
+                        labels: {
+                            rotation: "auto"
+                        }
+                    },
+                    tooltip: {
+                        visible: true,
+                        format: "{0}%",
+                        template: "#= series.name #: #= value #"
+                    }
+                });
+
+            },
+            error: function () {
+                iziToast.error({
+                    title: 'Error',
+                    message: 'Unable to update record. Please contact your system administrator.'
+                });
+            }
+        });
+    }  
+
+    function filterChallenge() {
+        return {
+            studioId: $("#Studio").val()
+        };
+    }
+
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function getSelectedScanLeaderboard() {
+        var leaderboardType = $("#ScanLeaderBoard").data("kendoDropDownList");
+        var leaderboardTypeId = leaderboardType.value();
+        return leaderboardTypeId;
+    }
+
+    function onChange() {
+        var challengedropdownlist = $("#ChallengeId").data("kendoDropDownList");
+        challengeId = challengedropdownlist.value();
+        onChangeScans();
+    }
+
+    function onChangeStudio() {
+        var studio = $("#Studio").data("kendoDropDownList");
+        studioId = studio.value();
+        onChange();
+    }
+
+    function onChangeScans() {
+        //kendo.ui.progress(gridObject.element, true);
+        var gridObject = $("#grdLeaderBoard").data("kendoGrid");
+        leaderboardTypeId = getSelectedScanLeaderboard();
+
+        if (leaderboardTypeId == 1) {
+
+            gridObject.showColumn(4);
+            gridObject.showColumn(5);
+            gridObject.showColumn(6);
+            gridObject.showColumn(7);
+            gridObject.showColumn(8);
+
+            gridObject.hideColumn(9);
+            gridObject.hideColumn(10);
+            gridObject.hideColumn(11);
+            gridObject.hideColumn(12);
+            gridObject.hideColumn(13);
+
+        } else {
+
+            gridObject.hideColumn(4);
+            gridObject.hideColumn(5);
+            gridObject.hideColumn(6);
+            gridObject.hideColumn(7);
+            gridObject.hideColumn(8);
+
+            gridObject.showColumn(9);
+            gridObject.showColumn(10);
+            gridObject.showColumn(11);
+            gridObject.showColumn(12);
+            gridObject.showColumn(13);
+        }
+        // call leaderboard read based on leaderboardTypeId
+        readLeaderBoard(studioId, challengeId, leaderboardTypeId);
+    }
+
+    function onDataBound() {
+        //position the add new button to the left.
+        $(".k-grid-toolbar").addClass("text-left");
+    }
+
+    function onDataBoundGender(e) {
+        var data = $("#grdGenderCount").data("kendoGrid").dataSource.view();
+
+        if (typeof data[0] !== 'undefined') {
+            createChart(data[0]);
+        }
+    }  
+
+    function onExportToExcel(e) {
+        var d = new Date();
+        var dateToday = d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+        var myHeaders = [{
+            value: "Challenge Leader Board",
+            fontSize: 25,
+            textAlign: "left",
+            background: "#ff3700",
+            color: "#ffffff"
+        }];
+
+        e.workbook.fileName = dateToday + "-ChallengeLeaderboard.xlsx";
+        var sheet = e.workbook.sheets[0];
+        var columns = sheet.columns;
+        columns.forEach(function (column) {
+            // also delete the width if it is set
+            delete column.width;
+            column.autoWidth = true;
+        });
+        sheet.frozenRows = 2;
+        sheet.mergedCells = ["A1:J1"];
+        sheet.name = "LeaderBoard";
+        sheet.rows.splice(0, 0, { cells: myHeaders, type: "header", height: 50 });
+    }
+
+    function onGroupExpand(e) {
+        //memberId = e.sender.dataItem(e.masterRow).MemberId
+        var challengeMemberId = e.sender.dataItem(e.masterRow).ChallengeMemberId       
+        createScanChart(challengeMemberId);
+        readChallengeImages(challengeMemberId);
+    }    
+
+    function readChallengeImages(challengeMemberId) {
+        $.ajax({
+            type: "POST",
+            url: "/Challenges/ChallengeLeaderboard?handler=ReadImages",
+            data: { ChallengeMemberId: challengeMemberId },
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded",
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            success: function (result) {
+
+                if (result != null) {
+                    $("#before-front-" + challengeMemberId).attr("src", result.BeforeFrontImage);
+                    $("#before-side-" + challengeMemberId).attr("src", result.BeforeSideImage);
+                    $("#before-back-" + challengeMemberId).attr("src", result.BeforeBackImage);
+                    $("#after-front-" + challengeMemberId).attr("src", result.AfterFrontImage);
+                    $("#after-side-" + challengeMemberId).attr("src", result.AfterSideImage);
+                    $("#after-back-" + challengeMemberId).attr("src", result.AfterBackImage);
+                }
+            },
+            error: function () {
+                iziToast.error({
+                    title: 'Error',
+                    message: 'Unable to update record. Please contact your system administrator.'
+                });
+            }
+        });
+    }
+
+    function readLeaderBoard(studioId, challengeId, leaderboardTypeId) {
+        if (challengeId != 0 || challengeId != '') {
+
+            var gridObject = $("#grdGenderCount").data("kendoGrid")
+            gridObject.dataSource.transport.options.read.url = "/Challenges/ChallengeLeaderboard?handler=ReadTopChart&studioId=" + studioId + "&challengeId=" + challengeId + "&leaderboardTypeId=" + leaderboardTypeId;
+            gridObject.dataSource.read();
+
+            var gridObject = $("#grdLeaderBoard").data("kendoGrid")
+            gridObject.dataSource.transport.options.read.url = "/Challenges/ChallengeLeaderboard?handler=Read&studioId=" + studioId + "&challengeId=" + challengeId + "&leaderboardTypeId=" + leaderboardTypeId;
+            gridObject.dataSource.read();
+        }
+    }    
+    
+</script>
+
+<style>
+    .circle {
+        background-color: transparent;
+        border: 0.5vw double #007bff;
+        height: 8vw;
+        border-radius: 50%;
+        -moz-border-radius: 50%;
+        -webkit-border-radius: 50%;
+        width: 8vw;
+        padding-top: 1.5vw;
+        float: left;
+        overflow: hidden;
+        margin: 2vw;
+    }
+</style>
+

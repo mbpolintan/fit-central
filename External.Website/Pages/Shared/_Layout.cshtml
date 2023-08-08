@@ -1,0 +1,68 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using System.Globalization
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - StudioCentral_External</title>
+    <link rel="icon" type="image/png" href="~/favicon.ico">
+
+    <link href="~/lib/bootstrap/dist/css/bootstrap.css" rel="stylesheet" />
+    <link href="https://kendo.cdn.telerik.com/2019.3.1023/styles/kendo.bootstrap-v4.min.css" rel="stylesheet" />
+    @*<link href="~/lib/CustomTheme/SC001Theme.css" rel="stylesheet" type="text/css" />*@
+    <link href="~/lib/CustomTheme/SC002Theme.css" rel="stylesheet" type="text/css" />
+    <link href="~/lib/iziToast/dist/css/iziToast.min.css" rel="stylesheet" />
+    <link href="~/lib/fontawesome/css/all.css" rel="stylesheet">
+    <link href="~/css/site.css" rel="stylesheet" />
+
+    <script src="~/lib/kendo-ui/js/jquery.min.js"></script>
+    <script src="~/lib/kendo-ui/js/jszip.min.js"></script>
+    <script src="~/lib/kendo-ui/js/kendo.all.min.js"></script>
+    <script src="~/lib/kendo-ui/js/kendo.aspnetmvc.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/lib/iziToast/dist/js/iziToast.min.js"></script>
+    <script src=@Url.Content("~/lib/kendo-ui/js/cultures/kendo.culture.en-AU.min.js")></script>
+    <script type="text/javascript">
+        //set culture of the Kendo UI
+        kendo.culture("en-AU");// change the culture
+    </script>
+    @{ CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("en-AU"); }
+</head>
+<body class="k-content wrapper">
+    <header>
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-fixed-top">
+            <a class="navbar-brand" asp-area="" asp-page="/MemberDetails/MemberInformation"><img src="~/images/scm-light-v2.png" height:auto" /></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse"
+                    aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="dark-blue-text">
+                    <i class="fas fa-bars fa-1x"></i>
+                </span>
+            </button>
+            <div class="collapse navbar-collapse d-sm-inline-flex flex-sm-row-reverse navbar-dark">
+                <!-- Links -->
+                <partial name="_LoginPartial" />
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link text-light" asp-area="" asp-page="/Index">Home<span class="sr-only">(current)</span></a>
+                    </li>
+                    @*<li class="nav-item">
+                        <a class="nav-link text-light" asp-area="" asp-page="/MemberDetails/MemberInformation">Profile</a>
+                    </li>*@
+                </ul>
+                <!-- Links -->
+            </div>
+        </nav>
+    </header>
+    <main role="main">
+        @RenderBody()
+    </main>
+    @*<footer class="footer text-muted">
+        <div class="container">
+            &copy; 2020 - Studio X Central - <a asp-area="" asp-page="/Privacy">Privacy</a>
+        </div>
+    </footer>*@
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

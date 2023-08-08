@@ -1,0 +1,56 @@
+﻿@page
+@model IndexModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{
+    ViewData["Title"] = "Home page";
+}
+
+    <div class="text-center">
+        <h1 class="display-4">Welcome</h1>
+        @*<p>Learn about <a href="https://f45challenge.com/">F45 Challenges</a>.</p>*@
+        @Html.AntiForgeryToken()
+        @if (Model.Members != null)
+        {
+            <h6>Select Studio</h6>
+            foreach (var member in Model.Members)
+            {
+                <button class="btn btn-info btn-lg btn-studio" style="width:150px; height:150px;" id="@member.MemberId"> @member.StudioName</button>
+
+            }
+
+        }
+
+
+    </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $(".btn-studio").on('click', function (e) {
+            var memberId = e.currentTarget.id;
+
+            var studio = $("button[id="+memberId+"]").html();
+     
+            $.ajax({
+                type: "POST",
+                url: "/Index?handler=AssignMemberId",
+                data: {
+                    memberId: memberId,
+                    studio: studio,
+                },
+                dataType: 'json',
+                headers: {
+                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                success: function (success) {
+                    if (success) {
+                        window.location.replace(`/MemberDetails/MemberInformation`);
+                    }
+
+                },
+                error: function () {
+                    kendo.alert('Something Wrong. Contact your administrator.');
+                }
+            });
+        });
+    });
+</script>

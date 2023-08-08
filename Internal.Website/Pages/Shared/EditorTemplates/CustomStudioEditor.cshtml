@@ -1,0 +1,72 @@
+﻿@model DataAccess.ViewModels.StudioViewModel
+@using Kendo.Mvc.UI
+
+
+<label class="km-inline-field km-label-above" style="width:100%;">    
+    @(Html.Kendo().CheckBoxFor(model => model.IsMindBody).HtmlAttributes(new { @checked = "checked", @value = "true" }).Checked(true).Label("MindBody source"))
+</label>    
+<label class="km-inline-field km-label-above site" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.SiteId))</i>
+    @(Html.TextBoxFor(model => model.SiteId, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:SiteId", type="number" }))
+</label>
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.StudioName))</i>
+    @(Html.TextBoxFor(model => model.StudioName, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:StudioName" }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.ContactNumber))</i>
+    @(Html.TextBoxFor(model => model.ContactNumber, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:ContactNumber", type = "number" }))
+</label>
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.Email))</i>
+    @(Html.TextBoxFor(model => model.Email, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:Email" }))
+</label>
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.Postcode))</i>
+    @(Html.TextBoxFor(model => model.Postcode, new { required = "required", style = "width:100%", @class = "k-textbox", data_bind = "value:Postcode", type = "number" }))
+</label>
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.TimeZoneId))</i>
+    @(Html.Kendo().ComboBoxFor(model => model.TimeZoneId)
+        .HtmlAttributes(new { required = "required", style = "width:100%;" })
+        .Filter(FilterType.Contains)
+        .Placeholder("Select TimeZone")
+        .DataTextField("DisplayName")
+        .DataValueField("TimeZoneId")
+        .DataSource(source => source.Read(read => read.Url("/StudioAdmin/StudioLocations?handler=ReadTimeZone"))))
+</label>
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.ChallengeScanProductId))</i>
+    @(Html.Kendo().ComboBox()
+        .Name("ChallengeScanProductId")
+        .HtmlAttributes(new { style = "width:100%;" })
+        .Filter(FilterType.Contains)
+        .Placeholder("Select product")
+        .DataTextField("DisplayName")
+        .DataValueField("ProductId")
+        .DataSource(source => source.Read(read =>read.Url("/StudioAdmin/StudioLocations?handler=ReadProducts"))))
+</label>
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.IndividualScanProductId))</i>
+    @(Html.Kendo().ComboBox()
+        .Name("IndividualScanProductId")
+        .HtmlAttributes(new { style = "width:100%;" })
+        .Filter(FilterType.Contains)
+        .Placeholder("Select product")
+        .DataTextField("DisplayName")
+        .DataValueField("ProductId")
+        .DataSource(source =>source.Read(read => read.Url("/StudioAdmin/StudioLocations?handler=ReadProducts"))))
+</label>
+
+
+<style>
+    .k-checkbox-label {
+        padding-left: 20px;
+    }
+</style>

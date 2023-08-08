@@ -1,0 +1,91 @@
+﻿@model DataAccess.Models.Challenge
+@using Kendo.Mvc.UI
+
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.ChallengeNo))</i>
+    @(Html.TextBoxFor(model => model.ChallengeNo, new { type = "number", style = "width:100%", @class = "k-textbox", data_bind = "value:ChallengeNo" }))
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+</label>
+
+
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>@(Html.LabelFor(model => model.StartDate))</i>
+    @(Html.Kendo().DatePicker()
+        .Animation(true)
+        .Name("StartDate")
+        .Value(DateTime.Now)
+        .HtmlAttributes(new { style = "width: 100%", title = "Start Date", data_bind = "value:StartDate" })
+        .DateInput()
+    )
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>@(Html.LabelFor(model => model.EndDate))</i>
+    @(Html.Kendo().DatePicker()
+        .Animation(true)
+        .Name("EndDate")
+        .Value(DateTime.Now)
+        .HtmlAttributes(new { style = "width: 100%", title = "End Date", data_bind = "value:EndDate" })
+        .DateInput()
+    )
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>@(Html.LabelFor(model => model.StartScanFromDate))</i>
+    @(Html.Kendo().DatePicker()
+        .Animation(true)
+        .Name("StartScanFromDate")
+        .Value(DateTime.Now)
+        .HtmlAttributes(new { style = "width: 100%", title = "Start Scan Date From", data_bind = "value:StartScanFromDate" })
+        .DateInput()
+    )
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>@(Html.LabelFor(model => model.StartScanToDate))</i>
+    @(Html.Kendo().DatePicker()
+        .Animation(true)
+        .Name("StartScanToDate")
+        .Value(DateTime.Now)
+        .HtmlAttributes(new { style = "width: 100%", title = "Start Scan Date To", data_bind = "value:StartScanToDate" })
+        .DateInput()
+    )
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>@(Html.LabelFor(model => model.MidScanFromDate))</i>
+    @(Html.Kendo().DatePicker()
+        .Animation(true)
+        .Name("MidScanFromDate")
+        .Value(DateTime.Now)
+        .HtmlAttributes(new { style = "width: 100%", title = "Mid Scan Date From", data_bind = "value:MidScanFromDate" })
+        .DateInput()
+    )
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>@(Html.LabelFor(model => model.MidScanToDate))</i>
+    @(Html.Kendo().DatePicker()
+        .Animation(true)
+        .Name("MidScanToDate")
+        .Value(DateTime.Now)
+        .HtmlAttributes(new { style = "width: 100%", title = "Mid Scan Date To", data_bind = "value:MidScanToDate" })
+        .DateInput()
+    )
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>@(Html.LabelFor(model => model.EndScanFromDate))</i>
+    @(Html.Kendo().DatePicker()
+        .Animation(true)
+        .Name("EndScanFromDate")
+        .Value(DateTime.Now)
+        .HtmlAttributes(new { style = "width: 100%", title = "End Scan Date From", data_bind = "value:EndScanFromDate" })
+        .DateInput()
+    )
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;">
+    <i>@(Html.LabelFor(model => model.EndScanToDate))</i>
+    @(Html.Kendo().DatePicker()
+        .Animation(true)
+        .Name("EndScanToDate")
+        .Value(DateTime.Now)
+        .HtmlAttributes(new { style = "width: 100%", title = "End Scan Date To", data_bind = "value:EndScanToDate" })
+        .DateInput()
+    )
+</label>

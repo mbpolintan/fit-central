@@ -1,0 +1,147 @@
+﻿@page
+@model Internal.Website.ReportScansModel
+@using DataAccess.ViewModels
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{ ViewData["Title"] = "Scans Report"; }
+
+<div class="bg-light">    
+    <div class="row">
+        <div class="col">
+            <div class="col text-left">
+                <h4 class="k-primary">
+                    <small class="k-text-primary">@ViewData["Title"]</small>
+                </h4>
+            </div>
+            <div class="col-md-6 text-left" style="padding:0.5em">
+                @Html.Label("Studios: ")
+                @(Html.Kendo().DropDownList()
+                    .Name("Studio")
+                    .DataTextField("StudioName")
+                    .DataValueField("StudioId")
+                    .Events(e => e.Change("onChangeStudio"))
+                    .BindTo((System.Collections.IEnumerable)ViewData["Studios"])
+                    .HtmlAttributes(new { style = "width:30%;" }))
+
+                @Html.Label("Scans: ")
+                @(Html.Kendo().DropDownList()
+                    .Name("Scans")
+                    .DataTextField("Text")
+                    .DataValueField("Value")
+                    .HtmlAttributes(new { style = "width:30%;" })
+                    .Events(e => e.Change("onChangeScans"))
+                    .BindTo(new List<SelectListItem>() {
+                            new SelectListItem() { Text = "Imported Scans", Value = "1" },
+                            new SelectListItem() { Text = "Orphaned Scans", Value = "2"}})
+                    .Value("1"))
+            </div>
+            @Html.AntiForgeryToken()
+            @(Html.Kendo().Grid<ReportScanViewModel>()
+                .Name("gridScans")
+                .Columns(columns =>
+                {
+                    columns.ForeignKey(o => o.MemberId, (System.Collections.IEnumerable)ViewData["membersReport"], "MemberId", "DisplayName")
+                    .Title("Member").HeaderHtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(o => o.TestDateTime).Title("Scan Date").Format("{0:d}").Width("10%")
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                    columns.Bound(o => o.MobileNumber).Title("Mobile Number").Width("8%")
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(o => o.Age).Title("Age").Width("8%").Filterable(false)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(o => o.Height).Title("Height").Width("8%").Filterable(false)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(o => o.Weight).Title("Weight (kg)").Width("8%").Format("{0:n1}").Filterable(false)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(o => o.InBodyScore).Title("In Body Score").Width("10%").Filterable(false)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(o => o.Pbf).Title("Percent Body Fat").Width("10%").Filterable(false)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(o => o.Vfl).Title("Visceral Fat Level").Width("10%").Filterable(false)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                    columns.Bound(o => o.Smm).Title("Skeletal Muscle Mass").Width("10%").Filterable(false)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                    columns.Command(c =>
+                    {
+                        c.Edit().Text(" ").IconClass("k-icon k-i-edit");
+                        c.Destroy().Text(" ");
+                    }).Title("Update").HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                })
+                .ToolBar(tb => tb.Search())
+                .Search(search => search.Field(f => f.DisplayName).Field(f => f.TestDateTime).Field(f => f.MobileNumber))
+                .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("CustomScanEditor"))
+                .Navigatable().Mobile().Sortable()
+                .Filterable(filterable => filterable.Extra(false)
+                    .Operators(operators => operators.ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+
+                .Scrollable(scr => scr.Height(500))
+                .HtmlAttributes(new { style = "height:auto; width:auto; font-size:13px;" })
+                .Pageable(p =>
+                {
+                    p.ButtonCount(5);
+                    p.PageSizes(true);
+                })
+                .Events(events => events.Save("onSave"))
+                .DataSource(dataSource => dataSource
+                    .Ajax()
+                    .Read(r => r.Url("").Data("forgeryToken"))
+                    .Update(u => u.Url("/Scans/ReportScans?handler=Update").Data("forgeryToken"))
+                    .Destroy(d => d.Url("/Scans/ReportScans?handler=Destroy").Data("forgeryToken"))
+                    .Model(m =>
+                    {
+                        m.Id(id => id.ScanId);
+                        m.Field(f => f.MemberId);
+                    })
+                    .PageSize(20)
+                    .ServerOperation(false)))
+        </div>
+    </div>
+</div>
+
+<script>
+    var studioId = 0;
+    var scanStatusId = 1;
+
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function onChangeStudio(e) {
+        $("#Studio").closest(".k-widget").attr("id", "memberStudio");
+        var dropdownlist = $("#Studio").data("kendoDropDownList");
+        studioId = dropdownlist.value();
+        onChangeScans();
+        //scanStatusId = $("#Scans").val();
+        //var gridObject = $("#gridScans").data("kendoGrid")
+        //gridObject.dataSource.transport.options.read.url = "/Scans/ReportScans?handler=Read&studioId=" + studioId + "&scanStatusId=" + scanStatusId;
+        //gridObject.dataSource.read();
+    }
+
+    function onChangeScans() {
+        scanStatusId = $("#Scans").val();
+        var gridObject = $("#gridScans").data("kendoGrid")
+        gridObject.dataSource.transport.options.read.url = "/Scans/ReportScans?handler=Read&studioId=" + studioId + "&scanStatusId=" + scanStatusId;
+        gridObject.dataSource.read();
+
+
+    }
+
+    function onDataBound(e) {
+       
+    }
+
+    function onSave(e) {     
+        e.sender.one("dataBound", function () {
+            e.sender.dataSource.read();
+        });
+    }
+
+    $(document).ready(function () {
+        var studioName = '@Model.SelectedStudio.StudioName';
+        studioId = '@Model.SelectedStudio.StudioId';
+        var dropdownlist = $("#Studio").data("kendoDropDownList");
+        dropdownlist.text(studioName);
+        dropdownlist.value(studioId);
+        dropdownlist.trigger("change");
+    });
+
+</script>
+

@@ -1,0 +1,302 @@
+﻿@page
+@model Internal.Website.Pages.Billing.ReconciliationModel
+@using DataAccess.ViewModels
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{ ViewData["Title"] = "Payment Reconciliation";}
+
+    <div class="bg-light">
+      
+        <div class="col text-left">
+            <h4 class="k-primary">
+                <small class="k-color-dark">@ViewData["Title"]</small>
+            </h4>
+        </div>
+        <div class="col-md-5 text-left" style="padding:0.5em">
+            @Html.Label("Studios: ")
+            @(Html.Kendo().DropDownList()
+                .Name("Studio")
+                .DataTextField("StudioName")
+                .DataValueField("StudioId")
+                .Events(e => e.Change("onChangeStudio"))
+                .BindTo((System.Collections.IEnumerable)ViewData["Studios"])
+                .HtmlAttributes(new { style = "width:50%;" }))
+        </div>
+        <div class="reconcileToolbar">
+            <div class="col-md-3 col-sm-3 text-center">
+                @(Html.Label("Status :"))
+                @(Html.Kendo().DropDownList()
+                .HtmlAttributes(new { required = "required", style = "width:50%; text-center" })
+                .Name("Reconcile")
+                .DataValueField("Value")
+                .DataTextField("Text")
+                .Events(e => e.Change("onChangeReconcileStatus"))
+                    .BindTo(new List<SelectListItem>() {
+                    new SelectListItem() { Text = "Unreconciled", Value = "0"},
+                    new SelectListItem() { Text = "Reconciled", Value = "1"}
+                }).Value("false"))
+            </div>
+            <div class="col-md-3 col-sm-3 text-center">
+                @(Html.Label("Date Sale From :"))
+                @(Html.Kendo().DatePicker().Animation(true).Name("dateFrom").Format("dd/MM/yyyy")
+                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", title = "Sale Date From "}))
+            </div>
+            <div class="col-md-3 col-sm-3 text-center">
+                @(Html.Label("Date Sale To :"))
+                @(Html.Kendo().DatePicker().Animation(true).Name("dateTo").Format("dd/MM/yyyy")
+                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", title = "Sale Date To " }))
+            </div>   
+            <div class="col-md-3 col-sm-3 text-left">
+                @(Html.Kendo().Button()
+                    .Name("btnGenerate")
+                    .HtmlAttributes(new { type = "button", @class = "k-primary", style = "width: 80%" })
+                    .Content("Generate")
+                    .Events(e => e.Click("onClickGenerate")))
+            </div>
+        </div>
+        @Html.AntiForgeryToken()
+        @(Html.Kendo().Grid<PaymentReconciliationViewModel>()
+                    .Name("grdPaymentsReconciliation")
+                    .Columns(columns =>
+                    {
+                        columns.Select().Width("5%")
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(c => c.PaymentId).Visible(false);
+                        columns.Bound(c => c.DisplayName).Width("10%").Editable("false").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(c => c.SaleDateTime).Title("Sale Date").Width("10%").Format("{0:d}").Editable("false").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(c => c.SaleTime).Title("Sale Time").Width("10%").Editable("false").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(c => c.Description).Title("Purchased Item").Width("20%").Filterable(false).Editable("false")
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(c => c.Amount).Width("5%").Format("{0:c}").Title("Amount").Filterable(false).Editable("false")
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                        columns.Bound(c => c.PaymentType).Width("10%").Filterable(false).Editable("false")
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(c => c.Quantity).Title("Quantity").Width("8%").Filterable(false).Editable("false")
+                        .HeaderHtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(c => c.SaleDateTime).Title("Sale Date").Width("10%").Format("{0:d}").Editable("false").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(c => c.ReconciledByEmail).Width("10%").Editable("false").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" });
+                        columns.Bound(c => c.ReconciledDatetime).Title("Reconciled Date").Width("10%").Format("{0:d}").Editable("false").Filterable(false)
+                        .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:center" });
+                    }).HtmlAttributes(new { @class = "text-center" })
+                    .Filterable(filterable => filterable.Extra(false).Operators(operators => operators
+                        .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                    .Mobile().Sortable().Scrollable().Navigatable().PersistSelection(true)
+                    .Events(ev => ev.Change("onChangeReconcile").ExcelExport("onExportToExcel").DataBound("onDataBound"))
+                    .Pageable(pager => pager.AlwaysVisible(true).PageSizes(new int[] { 20, 50, 100 }))
+
+                    .HtmlAttributes(new { style = "height:auto; width:auto; font-size:13px;" })
+                    .ToolBar(toolbar =>
+                    {
+                        toolbar.Custom().Text("Reconcile").HtmlAttributes(new { id = "reconcile" });
+                        toolbar.Search();
+                        toolbar.Excel();
+                    })
+                    .Excel(excel => excel.Filterable(true).AllPages(true) .ProxyURL(Url.Action("Excel_Export_Save")))
+                    .DataSource(ds => ds.Ajax().ServerOperation(false)
+                        .Events(events => events.Error("error_handler"))
+                        .PageSize(20)
+                        .Read(r => r.Url("").Data("forgeryToken"))
+                        .Update(u => u.Url("").Data("forgeryToken"))
+                        .Model(m => m.Id(id => id.PaymentId))))
+       
+    </div>
+
+    <script>
+    var studioId = 0;
+    var Ids = '';
+    var recon = 0;
+    var reconcile = false;
+    var isReconcile = true;
+
+    $(document).ready(function () { 
+        var d = new Date();  
+        var dateTo = d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+        var dateFrom = d.getDate() + "/" + d.getMonth() + "/" + d.getFullYear();
+
+        $("#dateFrom").data("kendoDatePicker").value(dateFrom);
+        $("#dateTo").data("kendoDatePicker").value(dateTo);     
+
+        var studioName = '@Model.SelectedStudio.StudioName';
+            studioId = '@Model.SelectedStudio.StudioId';
+
+        var studiolist = $("#Studio").data("kendoDropDownList");
+            studiolist.text(studioName);
+            studiolist.value(studioId);
+            studiolist.trigger("change");      
+
+        $('body').on('click','#reconcile', function (e) {
+            e.preventDefault();
+            kendo.confirm("Are you sure that you want to proceed?").then(function (e) {
+                var data = {
+                    paymentIds : Ids,
+                    recon: recon
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/Billing/Reconciliation?handler=UpdatePaymentReconciliation",
+                    data: data,
+                    dataType: 'json',
+                    headers: {
+                        RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (result) {
+
+                        var dropdownlist = $("#Studio").data("kendoDropDownList");
+                        studioId = dropdownlist.value();                        
+                        loadPaymentReciliation(studioId, dateFrom, dateTo, result)
+                    },
+                    error: function (e) {
+                        kendo.alert('Something Wrong. Contact your administrator.');
+                    }
+                });
+            });
+        });
+
+     });
+
+    function onDataBound(e) {
+        //position the add new button to the left.
+        $(".k-grid-toolbar").addClass("text-left");
+    }
+
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+
+
+            iziToast.error({
+                title: 'Error',
+                message: message,
+                position: 'center'
+            });
+
+            loadPaymentReciliation(studioId, dateFrom, dateTo, reconcile);
+        }
+    }
+
+    function onChangeStudio(e) {
+        var dropdownlist = $("#Studio").data("kendoDropDownList");
+        studioId = dropdownlist.value();       
+        recon = $("#Reconcile").data("kendoDropDownList").value();
+
+        if (recon > 0) {
+            isReconcile = false;
+            reconcile = true;
+        }
+
+        dateFrom = $("#dateFrom").data("kendoDatePicker").value();
+        dateTo = $("#dateTo").data("kendoDatePicker").value();  
+       
+        loadPaymentReciliation(studioId, dateFrom, dateTo, reconcile);
+    }
+
+    function onChangeReconcile(e) {
+        Ids = this.selectedKeyNames().join(",");
+    }
+
+    function onChangeReconcileStatus(e) {  
+        dateFrom = $("#dateFrom").data("kendoDatePicker").value();
+        dateTo = $("#dateTo").data("kendoDatePicker").value();
+        recon = $("#Reconcile").data("kendoDropDownList").value();
+
+        if (recon > 0) {
+            isReconcile = false;
+            reconcile = true;
+            $("#reconcile").text('Unreconciled')
+        } else {
+            reconcile = false;
+            $("#reconcile").text('Reconcile')
+        }
+
+        $("#grdPaymentsReconciliation").data("kendoGrid").dataSource.data([]);
+
+    }
+    function onClickGenerate() {
+        var dropdownlist = $("#Studio").data("kendoDropDownList");
+        studioId = dropdownlist.value();
+
+        dateFrom = $("#dateFrom").data("kendoDatePicker").value();
+        dateTo = $("#dateTo").data("kendoDatePicker").value();
+
+    
+        //recon = $("#Reconcile").data("kendoDropDownList").value();
+
+        //if (recon > 0) {
+        //    isReconcile = false;
+        //    reconcile = true;
+        //    $("#reconcile").text('Unreconciled')
+        //} else {
+
+        //    $("#reconcile").text('Reconcile')
+        //}
+
+        loadPaymentReciliation(studioId, dateFrom, dateTo, reconcile);
+    }
+    function onDataBound(e) {
+        //position the add new button to the left.
+        $(".k-grid-toolbar").addClass("text-left");
+    }  
+    function onExportToExcel(e) {
+        var d = new Date();
+        var dateToday = d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+        var value = (recon > 0) ? "Reconciled Payments" : "Unreconciled Payments";
+
+        e.workbook.fileName = dateToday + "-PaymentReconciliation.xlsx";
+        var sheet = e.workbook.sheets[0];
+        var columns = sheet.columns;
+        columns.forEach(function (column) {
+            // also delete the width if it is set
+            delete column.width;
+            column.autoWidth = true;
+        });
+
+        sheet.frozenRows = 2;
+        sheet.mergedCells = ["A1:J1"];
+        sheet.name = "Payments";
+
+        var myHeaders = [{
+            value: value,
+            fontSize: 25,
+            textAlign: "left",
+            background: "#ff3700",
+            color: "#ffffff"
+        }];
+
+        sheet.rows.splice(0, 0, { cells: myHeaders, type: "header", height: 50 });
+    }
+
+
+        function loadPaymentReciliation(studioId, dateFrom, dateTo, reconcile) {
+
+            var from = new Date(dateFrom);
+            var dFrom = from.getDate() + "/" + from.getMonth() + "/" + from.getFullYear()
+            var to = new Date(dateTo);
+            var dTo = to.getDate() + "/" + to.getMonth() + "/" + to.getFullYear()
+
+            console.log(dFrom + " - " + dTo);
+
+        var gridObject = $("#grdPaymentsReconciliation").data("kendoGrid")
+            gridObject.dataSource.transport.options.read.url = "/Billing/Reconciliation?handler=ReadPaymentReconciliation&studioId=" + studioId + "&dateFrom=" + dFrom + "&dateTo=" + dTo + "&isReconciled=" + reconcile;
+        gridObject.dataSource.read();
+
+        var pageSizeDropDownList = gridObject.wrapper.children(".k-grid-pager").find("select").data("kendoDropDownList");     
+               
+    }
+  
+
+    </script>

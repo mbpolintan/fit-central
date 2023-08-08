@@ -1,0 +1,88 @@
+{
+  "_from": "@syncfusion/ej2-splitbuttons@~18.2.44",
+  "_id": "@syncfusion/ej2-splitbuttons@18.2.44",
+  "_inBundle": false,
+  "_integrity": "sha512-zR/q7OTow5CtV3ZJ2mTHdOhkYr6TeWTg3I4I47lee+6H9EFrryURmi3iyhVHaLQEG/RHW7o53kr9d7qqQwyFyQ==",
+  "_location": "/@syncfusion/ej2-splitbuttons",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-splitbuttons@~18.2.44",
+    "name": "@syncfusion/ej2-splitbuttons",
+    "escapedName": "@syncfusion%2fej2-splitbuttons",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.44",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.44"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2",
+    "/@syncfusion/ej2-documenteditor",
+    "/@syncfusion/ej2-filemanager",
+    "/@syncfusion/ej2-grids",
+    "/@syncfusion/ej2-inplace-editor",
+    "/@syncfusion/ej2-inputs",
+    "/@syncfusion/ej2-pivotview",
+    "/@syncfusion/ej2-querybuilder",
+    "/@syncfusion/ej2-richtexteditor"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-splitbuttons/-/ej2-splitbuttons-18.2.44.tgz",
+  "_shasum": "329132e2bb539a7aaa3fea14bf56e39bb0882227",
+  "_spec": "@syncfusion/ej2-splitbuttons@~18.2.44",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bugs": {
+    "url": "https://github.com/syncfusion/ej2-javascript-ui-controls/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.44",
+    "@syncfusion/ej2-popups": "~18.2.44"
+  },
+  "deprecated": false,
+  "description": "A package of feature-rich Essential JS 2 components such as DropDownButton, SplitButton, ProgressButton and ButtonGroup.",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-splitbuttons.es2015.js",
+  "homepage": "https://github.com/syncfusion/ej2-javascript-ui-controls#readme",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "ej2-splitbuttons",
+    "ej2 splitbutton",
+    "ej2 dropdownbutton",
+    "ej2 buttongroup",
+    "ej2 progress button",
+    "JavaScript",
+    "TypeScript",
+    "split button",
+    "splitbutton",
+    "dropdown",
+    "dropdown button",
+    "drop-down button",
+    "dropdownbutton",
+    "dropdown popup",
+    "button group",
+    "buttongroup",
+    "group button",
+    "progress",
+    "spinner",
+    "progress button",
+    "progress indicator",
+    "spinbutton",
+    "spin button"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-splitbuttons.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-splitbuttons",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/syncfusion/ej2-javascript-ui-controls.git"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.44"
+}

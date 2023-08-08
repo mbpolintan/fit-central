@@ -1,0 +1,34 @@
+﻿@*@model DataAccess.ViewModels.ReportScanViewModel*@
+
+@model DataAccess.Models.WeightedSystem
+@using Kendo.Mvc.UI
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.Category))</i>
+    @(Html.TextBoxFor(model => model.Category, new { style = "width:100%", @class = "k-textbox", data_bind = "value:Category" }))
+</label>
+
+<label class="km-inline-field km-label-above col-md-6 text-left" style="width:100%;float:left;overflow:hidden;">
+    @(Html.LabelFor(model => model.UpperRange, new {  style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.UpperRange, new { @class = "k-textbox", Type ="number", required = "required", style = "width:100%;float:left;overflow:hidden;", data_bind = "value:UpperRange" }))
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;float:left;overflow:hidden;">
+    @(Html.LabelFor(model => model.UpperRangeWeighted, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.UpperRangeWeighted, new { style = "width:100%;float:left;overflow:hidden;", @class = "k-textbox", data_bind = "value:UpperRangeWeighted" }))
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;float:left;overflow:hidden;">
+    @(Html.LabelFor(model => model.MidRange, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.MidRange, new { @class = "k-textbox", style = "width:100%;float:left;overflow:hidden;", Type = "number", data_bind = "value:MidRange" }))
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;float:left;overflow:hidden;">
+    @(Html.LabelFor(model => model.MidRangeWeighted, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.MidRangeWeighted, new { @class = "k-textbox", style = "width:100%;float:left;overflow:hidden;", Type = "number", data_bind = "value:MidRangeWeighted" }))
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;float:left;overflow:hidden;">
+    @(Html.LabelFor(model => model.LowerRange, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.LowerRange, new { @class = "k-textbox", style = "width:100%;float:left;overflow:hidden;", Type = "number", data_bind = "value:LowerRange" }))
+</label>
+<label class="km-inline-field km-label-above col-md-6" style="width:100%;float:left;overflow:hidden;">
+    @(Html.LabelFor(model => model.LowerRangeWeighted, new { style = "width:100%;float:left;overflow:hidden;" }))
+    @(Html.TextBoxFor(model => model.LowerRangeWeighted, new { @class = "k-textbox", style = "width:100%;float:left;overflow:hidden;", Type = "number", data_bind = "value:LowerRangeWeighted" }))
+</label>

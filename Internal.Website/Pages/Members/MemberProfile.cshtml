@@ -1,0 +1,1596 @@
+﻿@page
+@model Internal.Website.MemberProfileModel
+@using DataAccess.ViewModels
+@using DataAccess.Models
+@using Kendo.Mvc.UI
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{ ViewData["Title"] = "Members Management";}
+<head>
+    <link rel="stylesheet" href="~/css/memberlisting.css" />
+</head>
+<div class="bg-light">
+    <div class="main-section row" style="padding:0;">
+        <div class="col-md-12 text-left" style="padding:0.5em">
+            @Html.Label("Studios: ")
+            @(Html.Kendo().DropDownList()
+                .Name("Studio")
+                .DataTextField("StudioName")
+                .DataValueField("StudioId")
+                .Events(e => e.Change("change"))
+                .BindTo((System.Collections.IEnumerable)ViewData["Studios"])
+                .HtmlAttributes(new { style = "width:15%;"}))
+
+            @Html.Label("Status: ")
+            @(Html.Kendo().DropDownList()
+                .Name("Status")
+                .DataTextField("Status")
+                .DataValueField("MemberStatusId")
+                .Events(e => e.Change("onChangeStatus").DataBound("onStatusDataBound"))
+                .BindTo((System.Collections.IEnumerable)ViewData["Status"])
+                .HtmlAttributes(new { style = "width:15%;" }))
+        </div>
+        <div id="member-list" class="col col-md-2">
+           
+           
+            <div class="form-group">
+                <div class="col-md-7" style = "float:left;overflow-y: hidden;">
+                    <h3 style="font-size:0.8vw">STUDIO MEMBERS</h3>
+                </div>
+                <div class="col-md-5" style = "float:left;overflow-y: hidden; padding:0.5vw">
+                    <input type="button" class="btn-sm k-primary k-button" id="addMember" data-toggle="modal" data-target="#memberProfile" value="Add Member" style="width:100%" />
+                </div>
+            </div>
+
+            @Html.AntiForgeryToken()
+            @(Html.Kendo().TextBox()
+                   .Name("searchBox")
+                   .HtmlAttributes(new { placeholder = "Search member here.." }))
+            @(Html.Kendo().ListView<MemberViewModel>()
+                .Name("MemberList")
+                .TagName("div")
+                .Scrollable(ListViewScrollableMode.Endless)
+                .HtmlAttributes(new { style = "height:70vh;overflow-y: hidden;" })
+                .Events(e => e.DataBound("onListDataBound").Change("onCriteriaChange"))
+                .ClientTemplateId("memberItemTemplate")
+                .Selectable(s => s.Mode(ListViewSelectionMode.Single))
+                .DataSource(dataSource => dataSource.Ajax()
+                    .Read(r => r.Url("").Data("forgeryToken"))))
+        </div>
+            <div id="member-details-wrapper" class="col col-xs-10">
+                <div id="member-details" class="row">
+                    <div id="member-about" class="col-md-12 placeholder">                       
+                        <div id="memberBio" class="col-md-8 col-md-8" style="float: left; overflow: hidden;"></div>
+                        <div class="text-right">
+                            <input type="button" class="btn-sm k-primary k-button" id="updateProfile" data-toggle="modal" data-target="#memberProfile" value="Update Profile" />
+                        </div>
+                    </div>
+                    <div id="member-tabs" class="col-md-12 placeholder">
+                        @(Html.Kendo().TabStrip()
+                        .Name("tabstrip")
+                        .Events(events => events.Error("onErrorTab").Select("onSelectTab"))
+                        .HtmlAttributes(new { style = "margin-top:0; backgroud-color:#fffff; over-flow:hidden" })
+                        .Animation(animation =>animation.Open(effect => effect.Fade(FadeDirection.In)))
+                        .Items(tabstrip =>
+                        {
+                        tabstrip.Add().Text("Profile")
+                            .Selected(true)
+                            .Content(@<text>
+                                    <div id="profile" class="col-md-12 placeholder">
+                                       <div class="col-md-8" style="overflow:hidden;float:left;">
+                                           <h4 style="font-size:0.8vw;">Personal Profile</h4>
+                                           <hr />
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12">First Name :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="firstName" readonly/>
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Scanner Logon :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="scannerNo" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Last Name :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="lastName" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Mobile Phone :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="mobileNo" readonly />
+                                            </div>
+                                            <div class="km-label-above col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12" > Date Of Birth :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="dob" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Work Phone :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="workNo" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Gender :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="gender" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Home Phone :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="homeNo" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Status :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="status" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> City :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="city" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Address Line 1 :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="addressOne" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12" > State :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="state" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Address Line 2 :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="addressTwo" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Country :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="country" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Postal Code :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="postal" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Referred By :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="referral" readonly/>
+                                            </div>
+                                           <br />
+                                            <h4 style="font-size:0.8vw;">Contact Person In Case of Emergency</h4>
+                                            <hr />
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Name:</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="cPerson" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Mobile Phone :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="cMobileNo" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Relationship:</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="cRelationship" readonly />
+                                            </div>
+                                            <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Email :</span>
+                                                <input class="profile-detail col-md-8 col-sm-12 col-sx-12" id="cEmail" readonly />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4" style="overflow:hidden;float:left;">
+                                            <h4 style="font-size:0.8vw;">Others</h4>
+                                            <hr />
+                                            <div class="col-md-12 col-sm-12 col-sx-12 text-left">
+                                                <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Shirt Size:</span>
+                                                <input class="profile-detail col-md-5 col-sm-12 col-sx-12" id="shirtSize" readonly />
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    </text>);
+                        tabstrip.Add().Text("Scans")
+                        .Content(@<text>
+                                 <div id="profile" class="col-md-12 placeholder">
+                                    <div class="chart-wrapper">
+                                        <h3>Scans Chart</h3>
+                                       <div id="chart" style="width:100%;"></div>
+                                    </div>
+                                    <h3>Scans Details</h3>
+                                    @Html.AntiForgeryToken()
+                                    @(Html.Kendo().Grid<ScanViewModel>()
+                                        .Name("gridScan")
+                                        .Columns(columns => {
+                                            columns.Bound(e => e.TestDateTime).Width("20%").Format("{0:g}").Title("Test Date Time")
+                                            .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.InBodyScore).Width("20%").Format("{0:n2}").Title("In Body Score").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Bound(e => e.Weight).Width("20%").Format("{0:n2}").Title("Weight").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Bound(e => e.Pbf).Width("20%").Format("{0:n2}").Title("Percentage Body Fat").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Bound(e => e.Smm).Width("20%").Format("{0:n2}").Title("Skeletal Muscle Mass").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Bound(e => e.Vfl).Width("20%").Title("Visceral Fat Level").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                        })
+                                        .Navigatable()
+                                        .Sortable()
+                                        .Scrollable(sc => sc.Endless(true))
+                                        .Filterable(filterable => filterable
+                                            .Extra(false).Operators(operators => operators
+                                                .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                                        .Mobile()
+                                        .HtmlAttributes(new { style = "width:100%; height:500px; font-size:13px; padding:0" })
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Read(r => r.Url("").Data("forgeryToken"))))
+                                </div>
+                                </text>);
+                        tabstrip.Add().Text("Membership")
+                        .Content(@<text>
+                                <div class="col-md-12 placeholder">
+                                        @(Html.Kendo().Grid<MbclientActiveMembership>()
+                                            .Name("gridMembership")
+                                            .Columns(columns =>
+                                            {
+                                                columns.Bound(e => e.Name).Width("24%").Title("Membership")
+                                                .HeaderHtmlAttributes(new { style = "text-align:center" });
+                                                columns.Bound(e => e.ActiveDate).Width("10%").Format("{0:d}").Title("Active Date")
+                                                .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                                columns.Bound(e => e.ExpirationDate).Width("10%").Format("{0:d}").Title("Expiration Date")
+                                                .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                                columns.Bound(e => e.PaymentDate).Width("10%").Format("{0:d}").Title("Payment Date")
+                                                .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                                columns.Bound(e => e.Count).Width("15%").Title("No. of Sessions").HtmlAttributes(new { style = "text-align:right" })
+                                                .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                                columns.Bound(e => e.Remaining).Width("15%").Title("Remaining Sessions").HtmlAttributes(new { style = "text-align:right" })
+                                                .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                                columns.Bound(e => e.Current)
+                                                .ClientTemplate("#=Current ? '<input type=\"checkbox\" checked disabled />' : '<input type=\"checkbox\" disabled />' #")
+                                                .Width("8%").Title("Current").HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                                columns.Bound(e => e.Action).Width("8%").Title("Action").HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            })
+                                            .Navigatable()
+                                            .Sortable()
+                                            .Filterable(filterable => filterable
+                                                .Extra(false).Operators(operators => operators
+                                                    .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                                            .Scrollable(sc => sc.Endless(true))
+                                            .Mobile()
+                                            .HtmlAttributes(new { style = "width:100%;height:500px; font-size:13px; padding:0" })
+                                            .Search(search =>
+                                            {
+                                                search
+                                                .Field(f => f.Name)
+                                                .Field(f => f.Action);
+                                            })
+                                            .DataSource(dataSource => dataSource
+                                                .Ajax()
+                                                .Read(r => r.Url("").Data("forgeryToken"))))
+                                </div>
+                                </text>);
+                        tabstrip.Add().Text("Contracts")
+                        .Content(@<text>
+                                <div class="col-md-12 placeholder">
+                                    @(Html.Kendo().Grid<ContractsViewModel>()
+                                        .Name("gridContracts")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(e => e.ContractName).Width("25%").Title("Contract Name")
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.AgreementDate).Width("20%").Format("{0:d}").Title("Agreement Date")
+                                            .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.StartDate).Width("20%").Format("{0:d}").Title("Start Date")
+                                            .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.EndDate).Width("20%").Format("{0:d}").Title("End Date")
+                                            .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.AutopayStatus).Width("20%").Title("Auto Pay Status")
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" });
+                                        })
+                                        .Navigatable()
+                                        .Sortable()
+                                        .Filterable(filterable => filterable
+                                            .Extra(false).Operators(operators => operators
+                                                .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                                        .Scrollable(sc => sc.Endless(true))
+                                        .Mobile()
+                                        .HtmlAttributes(new { style = "width:100%;height:500px; font-size:13px; padding:0" })
+                                        .Search(search => search.Field(f => f.ContractName))
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Read(r => r.Url("").Data("forgeryToken"))))
+                            </div>
+                                </text>);
+                        tabstrip.Add().Text("Visits")
+                        .Content(@<text>
+                                <div class="col-md-12 placeholder">
+                                    @(Html.Kendo().Grid<VwVisits>()
+                                        .Name("gridVisits")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(e => e.StartDateTime).Format("{0:d}").Title("Date")
+                                            .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.Time).Title("Time")
+                                            .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.Description).Title("Description")
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.Teacher).Title("Teacher")
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.Status).Title("Status")
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.PaymentInfo).Title("Service")
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" });
+                                        })
+                                        .Navigatable()
+                                        .Sortable()
+                                        .ToolBar(tb =>tb.ClientTemplateId("GridToolbarVisitsTemplate"))
+                                        .Filterable(filterable => filterable
+                                            .Extra(false).Operators(operators => operators
+                                                .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                                        .Scrollable(sc => sc.Endless(true))
+                                        .Mobile()
+                                        .HtmlAttributes(new { style = "width:100%;height:500px; font-size:13px; padding:0" })
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Read(r => r.Url("").Data("forgeryToken"))))
+                                </div>
+                                </text>);
+                        tabstrip.Add().Text("Purchases")
+                        .Content(@<text>
+                                <div class="col-md-12 placeholder">
+                                    @(Html.Kendo().Grid<PaymentMethodViewModel>()
+                                        .Name("gridPaymentMethod")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(e => e.IsDefault).ClientTemplate("#=IsDefault ? '<input type=\"checkbox\" checked disabled />' : '<input type=\"checkbox\" disabled />' #")
+                                            .Width("8%").Title("Is Default").HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.IsActive).ClientTemplate("#=IsActive ? '<input type=\"checkbox\" checked disabled />' : '<input type=\"checkbox\" disabled />' #")
+                                            .Width("8%").Title("Is Active").HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.Source).Title("Source").Width("20%")
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.MethodType).Title("Payment Method Type")
+                                            .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Bound(e => e.ForOtherMemberDisplayName).Title("Paid by Other Member").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Command(c =>
+                                            {
+                                                c.Edit().Text(" ").IconClass("k-icon k-i-edit").HtmlAttributes(new { style = "align-text:center"});
+                                                c.Destroy().Text(" ").IconClass("k-icon k-i-delete").HtmlAttributes(new { style = "align-text:center" });
+                                            }).Title("Actions").Width("15%").HtmlAttributes(new { @class = "text-center" }).HeaderHtmlAttributes(new { @class = "text-center" });
+                                        })
+                                        .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("CustomPaymentMethodEditor").Window(w => w.Title("Payment Method")))
+                                        .ToolBar(tb => {
+                                            tb.Create().Text("&nbsp;Add Payment Method").IconClass("fas fa-credit-card");
+                                            tb.Search();})
+                                        .Navigatable()
+                                        .Sortable()
+                                        .Filterable(filterable => filterable
+                                            .Extra(false).Operators(operators => operators
+                                                .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                                        .Scrollable(sc => sc.Endless(true))
+                                        .Mobile()
+                                        .HtmlAttributes(new { style = "width:100%; height:300px; font-size:13px; padding:0; white-space:normal" })
+                                        .Events(events => events.DataBound("onDataBound").Edit("editPaymentMethod").Save("onGridSave"))
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Events(events => events.Error("error_handler"))
+                                            .Model(model =>  model.Id(p => p.PaymentMethodId))
+                                            .Read(r => r.Url("").Data("forgeryToken"))
+                                            .Create(c => c.Url("/Members/MemberProfile?handler=CreatePaymentMethod").Data("forgeryToken"))
+                                            .Update(u => u.Url("/Members/MemberProfile?handler=UpdatePaymentMethod").Data("forgeryToken"))
+                                            .Destroy(d => d.Url("/Members/MemberProfile?handler=DestroyPaymentMethod").Data("forgeryToken"))))
+
+                                    @(Html.Kendo().Grid<PurchasesViewModel>()
+                                        .Name("gridPurchases")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(e => e.SaleDate).Title("Sale Date").Format("{0:d}")
+                                            .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.SaleTime).Title("Sale Time")
+                                            .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.Description).Title("Description").Width("20%")
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.Price).Title("Price").Format("{0:c}").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Bound(e => e.Quantity).Title("Quantity").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Bound(e => e.Discount).Title("Discount").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Bound(e => e.Tax).Title("Tax").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Bound(e => e.AmountPaid).Title("Amount Paid").Format("{0:c}").HtmlAttributes(new { style = "text-align:right" })
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                                            columns.Bound(e => e.Returned).Title("Returned")
+                                            .ClientTemplate("#=Returned ? '<input type=\"checkbox\" checked disabled />' : '<input type=\"checkbox\" disabled />' #")
+                                            .HtmlAttributes(new { @class = "text-center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                                            columns.Bound(e => e.AccountPayment).Title("Account Payment")
+                                            .ClientTemplate("#=AccountPayment ? '<input type=\"checkbox\" checked disabled />' : '<input type=\"checkbox\" disabled />' #")
+                                            .HtmlAttributes(new { @class = "text-center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+
+                                        })
+                                        .Navigatable()
+                                        .Sortable()
+                                        .Filterable(filterable => filterable
+                                            .Extra(false).Operators(operators => operators
+                                                .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to") .IsNotEqualTo("Is not equal to"))))
+                                        .Scrollable(sc => sc.Endless(true))
+                                        .Mobile()
+                                        .HtmlAttributes(new { style = "width:100%; height:500px; font-size:13px; padding:0; white-space:normal" })
+                                        .ToolBar(tb =>
+                                        {
+                                            tb.ClientTemplateId("GridToolbarPurchaseTemplate");
+                                        })
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Read(r => r.Url("").Data("forgeryToken"))))
+                                </div>
+                                </text>);
+                        tabstrip.Add().Text("Challenges")
+                        .Content(@<text>
+                                <div class="col-md-12 placeholder">
+                                    @(Html.Kendo().Grid<VwScans>()
+                                        .Name("gridChallenges")
+                                        .Columns(columns =>
+                                        {
+                                            columns.Bound(c => c.ChallengeNo).Filterable(false)
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                            columns.Group(group => group.Title("Mid Scan Result").HeaderHtmlAttributes(new { style = "text-align:center" })
+                                              .Columns(info =>
+                                              {
+                                                  info.Bound(c => c.MidInBodyTotal).Title("In Body Score (Gain)").Filterable(false)
+                                                  .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                                  info.Bound(c => c.MidWeightTotal).Format("{0:n3}%").Title("Weight (Loss)").Filterable(false)
+                                                  .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                                  info.Bound(c => c.MidPbftotal).Format("{0:n3}%").Title("PBF (Loss)").Filterable(false)
+                                                  .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                                  info.Bound(c => c.MidSmmtotal).Format("{0:n3}%").Title("SMM (Gain)").Filterable(false)
+                                                  .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                                  info.Bound(c => c.MidVfltotal).Title("VFL (Loss)").Filterable(false)
+                                                  .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                              }));
+                                            columns.Group(group => group.Title("End Scan Result").HeaderHtmlAttributes(new { style = "text-align:center" })
+                                              .Columns(info =>
+                                              {
+                                                  info.Bound(c => c.EndInBodyTotal).Title("In Body Score (Gain)").Filterable(false)
+                                                  .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                                  info.Bound(c => c.EndWeightTotal).Format("{0:n3}%").Title("Weight (Loss)").Filterable(false)
+                                                  .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                                  info.Bound(c => c.EndPbftotal).Format("{0:n3}%").Title("PBF (Loss)").Filterable(false)
+                                                  .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                                  info.Bound(c => c.EndSmmtotal).Format("{0:n3}%").Title("SMM (Gain)").Filterable(false)
+                                                  .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                                  info.Bound(c => c.EndVfltotal).Title("VFL (Loss)").Filterable(false)
+                                                  .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                              }));
+                                            columns.Bound(c => c.AttendedClass).Title("Total Class Attended").Filterable(false)
+                                            .HeaderHtmlAttributes(new { style = "text-align:center" }).HtmlAttributes(new { style = "text-align:right" });
+                                        })
+                                        .ClientDetailTemplateId("beforeandafterTemplate")
+                                        .Events(e => e.DataBound("onDataBound").DetailExpand("onGroupExpand"))
+                                        .Navigatable().Sortable().Mobile()
+                                        .Filterable(filterable => filterable
+                                            .Extra(false).Operators(operators => operators
+                                                .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+                                        .Scrollable(sc => sc.Endless(true))
+                                        .HtmlAttributes(new { style = "width:100%; height:500px;font-size:13px; padding:0; white-space:normal" })
+                                        .ToolBar(tb =>tb.Search())
+                                        .Search(search =>search.Field(f => f.ChallengeNo))
+                                        .DataSource(dataSource => dataSource
+                                            .Ajax()
+                                            .Read(r => r.Url("").Data("forgeryToken"))))
+                                </div>
+                                </text>);
+                        }))
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+@* Modal *@
+<div class="modal fade" id="memberProfile" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form role="form" id="newModalForm" autocomplete="off">
+                <div class="modal-body">
+                    <div class="col-md-12 profile form-group">
+                        <div class="col-md-9" style="overflow:hidden;float:left;">
+                            <h6 class="text-left">Personal Profile</h6>
+                            <hr />
+                            <div id="personalProfile" class="form-group">
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12">First Name :</span>
+                                    @(Html.Kendo().TextBox().Name("FirstName")
+                                        .HtmlAttributes(new { style = "width: 50%", @class= "profile-detail", @autocomplete = "off", tabindex = "1", required="required" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Scanner Logon :</span>
+                                    @(Html.Kendo().TextBox().Name("ScannerMobile")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "10", required = "required" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Last Name :</span>
+                                    @(Html.Kendo().TextBox().Name("LastName")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "2", required = "required" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Mobile Phone :</span>
+                                    @(Html.Kendo().TextBox().Name("MobilePhone")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "11", required = "required" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Email Address :</span>
+                                    @(Html.Kendo().TextBox().Name("Email")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "3", required = "required" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Work Phone :</span>
+                                    @(Html.Kendo().TextBox().Name("WorkPhone")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "12"}))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Date Of Birth :</span>
+                                    @(Html.Kendo().DatePicker().Animation(true).Name("Dob").DateInput()
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", title = "Date of Birth", tabindex = "4" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Home Phone :</span>
+                                    @(Html.Kendo().TextBox().Name("HomePhone")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "13" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Gender :</span>
+                                    @(Html.Kendo().ComboBox().Name("Gender")
+                                        .HtmlAttributes(new { style = "width:50%;", @class = "profile-detail", tabindex = "5" })
+                                        .Filter(FilterType.Contains).Placeholder("Select Gender...").DataTextField("Description").DataValueField("GenderId")
+                                        .BindTo((System.Collections.IEnumerable)ViewData["gender"]))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Country :</span>
+                                    @(Html.Kendo().TextBox().Name("Country")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "14" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Status :</span>
+                                    @(Html.Kendo().ComboBox().Name("MemberStatus")
+                                        .HtmlAttributes(new { style = "width:50%;", @class = "profile-detail", tabindex = "6" })
+                                        .Filter(FilterType.Contains).Placeholder("Select Status...").DataTextField("Status").DataValueField("MemberStatusId")
+                                        .BindTo((System.Collections.IEnumerable)ViewData["status"]))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> State :</span>
+                                    @(Html.Kendo().TextBox() .Name("State")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "15" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Address Line 1 :</span>
+                                    @(Html.Kendo().TextBox().Name("AddressLine1")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "7" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> City :</span>
+                                    @(Html.Kendo().TextBox().Name("City")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "16" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Address Line 2 :</span>
+                                    @(Html.Kendo().TextBox().Name("AddressLine2")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "8" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12">Referred by :</span>
+                                    @(Html.Kendo().ComboBox().Name("ReferralType")
+                                        .HtmlAttributes(new { style = "width:50%;", @class = "profile-detail", tabindex = "17" })
+                                        .Filter(FilterType.Contains).Placeholder("Select Referral...").Events(e => e.Change("changeReferral"))
+                                        .DataTextField("Description").DataValueField("ReferralTypeId")
+                                        .BindTo((System.Collections.IEnumerable)ViewData["referral"]))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Postal Code :</span>
+                                    @(Html.Kendo().TextBox().Name("PostalCode")
+                                        .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "9", required = "required" }))
+                                </div>
+                            </div>
+                            <h6 class="text-left">Contact Person In Case of Emergency</h6>
+                            <hr />
+                            <div id="emergencyProfile" class="form-group">
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Name:</span>
+                                    @(Html.Kendo().TextBox().Name("EmergencyContactInfoName")
+                                    .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "18" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Mobile Phone :</span>
+                                    @(Html.Kendo().TextBox().Name("EmergencyContactInfoPhone")
+                                    .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "20" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Relationship:</span>
+                                    @(Html.Kendo().TextBox().Name("EmergencyContactInfoRelationship")
+                                    .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "19" }))
+                                </div>
+                                <div class="col-md-6 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-4 col-sm-12 col-sx-12"> Email :</span>
+                                    @(Html.Kendo().TextBox().Name("EmergencyContactInfoEmail")
+                                    .HtmlAttributes(new { style = "width: 50%", @class = "profile-detail", @autocomplete = "off", tabindex = "21" }))
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3" style="overflow:hidden;float:left;">
+                            <h6 class="text-left">Other Information:</h6>
+                            <hr />
+                            <div id="otherProfile" class="form-group">
+                                <div class="col-md-12 col-sm-12 col-sx-12 text-left">
+                                    <span class="profile-label col-md-5 col-sm-12 col-sx-12">Shirt Size :</span>
+                                    @(Html.Kendo().ComboBox().Name("ShirtSize")
+                                        .HtmlAttributes(new { style = "width:50%;", @class = "profile-detail", tabindex = "22" })
+                                        .Filter(FilterType.Contains).Placeholder("Select Shirt Size...")
+                                        .DataTextField("ShortDescription").DataValueField("ShirtSizeId")
+                                        .BindTo((System.Collections.IEnumerable)ViewData["shirtSize"]))
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    @(Html.Kendo().CheckBox().Name("SyncToMidnBody").Label("Sync to MindBody")
+                            .HtmlAttributes(new { autocomplete = "false", tabindex = "22" }))
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@* Templates *@
+<script type="text/x-kendo-tmpl" id="memberItemTemplate">
+    <div class="member">
+        <div class="member-wrapper">
+            <img src="@(Url.Content("#=ImageURL#"))" class="img-list-member member-list-image" />
+            <dl class="member-list-details">
+                <dt class="name">#:FirstName# #:LastName#</dt>
+                <dd class="title"><span class="k-icon k-i-email"></span>&nbsp;#:Email#</dd>
+                <dd class="phone"><span class="fa fa-mobile-alt"></span>&nbsp;#:MobilePhone#</dd>
+            </dl>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-kendo-tmpl" id="memberBioTemplate">
+    <div class="text-left">
+        <img src="@(Url.Content("#=ImageURL#"))" class="img-member member-details-image" />
+        <dl class="member-bio-details">
+            <dt class="name">#:FirstName# #:LastName#</dt>
+            <dd class="title"><span class="k-icon k-i-email"></span>&nbsp;#:Email#</dd>
+            <dd class="phone"><span class="fa fa-mobile-alt"></span>&nbsp;#:MobilePhone#</dd>         
+            @*<dd class="phone">#:Mbid#</dd>*@
+        </dl>
+    </div>
+
+</script>
+
+<script id="beforeandafterTemplate" type="text/kendo-tmpl">
+    <div>
+        @Html.AntiForgeryToken()
+        @(Html.Kendo().Grid<ChallengeMemberScanViewModel>()
+        .Name("grid_#=ChallengeMemberId#")
+        .Columns(columns => {
+            columns.Group(group => group.Title("In Body Score").HeaderHtmlAttributes(new { style = "text-align:center" })
+                    .Columns(info =>
+                    {
+                        info.Bound(x => x.SInBodyScore).Width("10%").Format("{0:n2}").Title("Start")
+                        .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                        info.Bound(x => x.MInBodyScore).Width("10%").Format("{0:n2}").Title("Mid")
+                        .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                        info.Bound(x => x.EInBodyScore).Width("10%").Format("{0:n2}").Title("End")
+                        .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                    }));
+            columns.Group(group => group.Title("Weight").HeaderHtmlAttributes(new { style = "text-align:center" })
+                .Columns(info =>
+                {
+                    info.Bound(x => x.SWeight).Width("10%").Format("{0:n2}").Title("Start")
+                    .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                    info.Bound(x => x.MWeight).Width("10%").Format("{0:n2}").Title("Mid")
+                    .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                    info.Bound(x => x.EWeight).Width("10%").Format("{0:n2}").Title("End")
+                    .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                }));
+            columns.Group(group => group.Title("Percent Body Fat").HeaderHtmlAttributes(new { style = "text-align:center" })
+                       .Columns(info =>
+                       {
+                           info.Bound(x => x.SPBF).Width("10%").Format("{0:n2}").Title("Start")
+                           .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                           info.Bound(x => x.MPBF).Width("10%").Format("{0:n2}").Title("Mid")
+                           .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                           info.Bound(x => x.EPBF).Width("10%").Format("{0:n2}").Title("End")
+                           .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                       }));
+            columns.Group(group => group.Title("Visceral Fat Level").HeaderHtmlAttributes(new { style = "text-align:center" })
+                       .Columns(info =>
+                       {
+                           info.Bound(x => x.SVFL).Width("10%").Format("{0:n2}").Title("Start")
+                           .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                           info.Bound(x => x.MVFL).Width("10%").Format("{0:n2}").Title("Mid")
+                           .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                           info.Bound(x => x.EVFL).Width("10%").Format("{0:n2}").Title("End")
+                           .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                       }));
+            columns.Group(group => group.Title("Skeletal Muscle Mass").HeaderHtmlAttributes(new { style = "text-align:center" })
+                       .Columns(info =>
+                       {
+                           info.Bound(x => x.SSMM).Width("10%").Format("{0:n2}").Title("Start")
+                           .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                           info.Bound(x => x.MSMM).Width("10%").Format("{0:n2}").Title("Mid")
+                           .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                           info.Bound(x => x.ESMM).Width("10%").Format("{0:n2}").Title("End")
+                           .HtmlAttributes(new { style = "text-align:right" }).HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+                       }));
+
+            //columns.Bound(e => e.IsBilled).Width("20%").Title("Is Billed").HtmlAttributes(new { style = "text-align:right" })
+            //.HeaderHtmlAttributes(new { style = "text-align:center" }).Filterable(false);
+
+        })
+        .Navigatable()
+        .Sortable()
+        .Scrollable(sc => sc.Endless(true))
+        .Filterable(filterable => filterable.Extra(false).Operators(operators => operators.ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+        .Mobile()
+        .HtmlAttributes(new { style = "width:100%; height:200px; font-size:13px; padding:0" })
+        .DataSource(dataSource => dataSource
+        .Ajax()
+        .Read(r => r.Url("/Members/MemberProfile?handler=ReadMemberChallengeScans&challengeMemberId=#=ChallengeMemberId#").Data("forgeryToken"))
+        )
+        .ToClientTemplate()
+    )
+
+    </div>
+    <div>
+            <div class="col-md-6" style="overflow:hidden; float:left">
+                <h6>Before</h6>
+                <div class="col-md-4" style="overflow:hidden; float:left">
+                    <div class="card">
+                        <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                            <img src="/images/images.jfif" id="before-front-#=ChallengeMemberId#" class="imageDisplay img-thumbnail before-front" style="min-height:150px; max-height:150px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="overflow:hidden; float:left">
+                    <div class="card">
+                        <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                            <img src="/images/images.jfif" id="before-side-#=ChallengeMemberId#" class="imageDisplay img-thumbnail before-side" style="min-height:150px; max-height:150px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="overflow:hidden; float:left">
+                    <div class="card">
+                        <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                            <img src="/images/images.jfif" id="before-back-#=ChallengeMemberId#" class="imageDisplay img-thumbnail before-back" style="min-height:150px; max-height:150px;" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6" style="overflow:hidden; float:left">
+                <h6>After</h6>
+                <div class="col-md-4" style="overflow:hidden; float:left">
+                    <div class="card">
+                        <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                            <img src="/images/images.jfif" id="after-front-#=ChallengeMemberId#" class="imageDisplay img-thumbnail after-front" style="min-height:150px; max-height:150px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="overflow:hidden; float:left">
+                    <div class="card">
+                        <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                            <img src="/images/images.jfif" id="after-side-#=ChallengeMemberId#" class="imageDisplay img-thumbnail after-side" style="min-height:150px; max-height:150px;" />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4" style="overflow:hidden; float:left">
+                    <div class="card">
+                        <div class="card-body" style="text-align:center; min-height:150px; max-height:150px;">
+                            <img src="/images/images.jfif" id="after-back-#=ChallengeMemberId#" class="imageDisplay img-thumbnail after-back" style="min-height:150px; max-height:150px;" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+</script>
+
+<script id="GridToolbarVisitsTemplate" type="text/x-kendo-template">
+    <div id="profile" class="placeholder" style="width:100%;float:left;overflow:hidden;">
+        <label class="km-inline-field km-label-above col-md-6 text-left" style="width:100%;float:left;overflow:hidden;">
+            <span class="profile-label col-md-3" style="width:100%;float:left;overflow:hidden;padding-left:0;"> Total Attendance:</span>
+            <input class="profile-detail col-md-9 text-right" id="signedIn" style="width:20%;float:left;overflow:hidden;" readonly />
+        </label>
+        <label class="km-inline-field km-label-above col-md-6 text-left" style="width:100%;float:left;overflow:hidden;">
+            <span class="profile-label col-md-3" style="width:100%;float:left;overflow:hidden;padding-left:0;"> Absences/Cancelled:</span>
+            <input class="profile-detail col-md-9 text-right" id="absences" style="width:20%;float:left;overflow:hidden;" readonly />
+        </label>
+        <label class="km-inline-field km-label-above col-md-6 text-left" style="width:100%;float:left;overflow:hidden;">
+            <span class="profile-label col-md-3" style="width:100%;float:left;overflow:hidden;padding-left:0;">Total Bookings:</span>
+            <input class="profile-detail col-md-9 text-right" id="totalVisits" style="width:20%;float:left;overflow:hidden;" readonly />
+        </label>
+        <label class="km-inline-field km-label-above col-md-6 text-left" style="width:100%;float:left;overflow:hidden;">
+            <span class="profile-label col-md-3" style="width:100%;float:left;overflow:hidden;padding-left:0;"> Late Cancelled:</span>
+            <input class="profile-detail col-md-9 text-right" id="lateCancelled" style="width:20%;float:left;overflow:hidden;" readonly />
+        </label>
+        <div id="achievements" class="km-inline-field km-label-above col-md-6 text-left" style="width:100%;float:left;overflow:hidden;">
+            <span class="profile-label col-md-3" style="width:100%;float:left;overflow:hidden;padding-left:0;"> Achievements:</span>
+        </div>
+    </div>
+</script>
+
+<script id="GridToolbarPurchaseTemplate" type="text/x-kendo-template">
+    <div id="profile" class="col-md-12 placeholder">
+        <label class="km-inline-field km-label-above col-md-6 text-left" style="width:100%;float:left;overflow:hidden;">
+            <span class="profile-label col-md-3 col-sm-12 col-sx-12"> Total Amount Paid:</span>
+            <input class="profile-detail col-md-9 text-right" id="totalAmountPaid" style="width:20%;float:left;overflow:hidden;" readonly />
+        </label>  
+    </div>
+</script>
+
+<script type="text/javascript">
+    var studioId = 0;
+    var statusId = 0;
+    var memberId = 0;
+    var uniquedId = 0;
+    var mbid = '';
+    var memberInfo = {};   
+
+    $(document).ready(function () {
+        initializeGrid(null);
+
+        var studioName = '@Model.SelectedStudio.StudioName';
+        studioId = '@Model.SelectedStudio.StudioId';
+        statusId = $("#Status").data("kendoDropDownList").value();
+
+        var dropdownlist = $("#Studio").data("kendoDropDownList");
+        dropdownlist.text(studioName);
+        dropdownlist.value(studioId);
+        dropdownlist.trigger("change");
+
+        $(window).on("resize", function () {
+            kendo.resize($(".chart-wrapper"));
+        });
+       
+        $("#searchBox").on("input", function (e) {
+            var listView = $("#MemberList").data("kendoListView");
+            var sarchString = $(this).val();
+            listView.dataSource.filter({ field: "DisplayName", operator: "contains", value: sarchString });
+        });
+
+        $("#updateProfile").on('click', function () {   
+            // configure modal
+            $("#submitUpdateMember").remove();
+            $(".modal-footer").append('<input type="submit" class="btn-sm k-primary k-button" id="submitUpdateMember" value="Update" , tabindex = "23" />')
+            $("#submitAddMember").remove();
+            $('.modal-title').text('Update Profile');
+
+            var GenderId = document.getElementById("gender").getAttribute("genderId");
+            var StatusId = document.getElementById("status").getAttribute("statusId");   
+            var ShirtSizeId = document.getElementById("shirtSize").getAttribute("sizeId"); 
+            var dobdateOnly = (memberInfo.Dob != null || memberInfo.Dob == "") ? removeTime(memberInfo.Dob) : memberInfo.Dob;      
+            // populate fields
+            $("#Gender").data("kendoComboBox").value(GenderId);
+            $("#MemberStatus").data("kendoComboBox").value(StatusId);
+            $("#ShirtSize").data("kendoComboBox").value(ShirtSizeId);
+            $("#ReferralType").data("kendoComboBox").text(memberInfo.ReferredBy);
+            $("#Email").val(memberInfo.Email)
+            $("#FirstName").val(memberInfo.FirstName);
+            $("#LastName").val(memberInfo.LastName);
+            $("#Mbid").val(memberInfo.Mbid);
+            $("#Dob").val(dobdateOnly);
+            $("#MobilePhone").val(memberInfo.MobilePhone);
+            $("#ScannerMobile").val(memberInfo.ScannerMobile);
+            $("#WorkPhone").val(memberInfo.WorkPhone);
+            $("#HomePhone").val(memberInfo.HomePhone);
+            $("#AddressLine1").val(memberInfo.AddressLine1);
+            $("#AddressLine2").val(memberInfo.AddressLine2);
+            $("#City").val(memberInfo.City);
+            $("#State").val(memberInfo.State);
+            $("#Country").val(memberInfo.Country);
+            $("#PostalCode").val(memberInfo.PostalCode);
+            $("#EmergencyContactInfoName").val(memberInfo.EmergencyContactInfoName);
+            $("#EmergencyContactInfoRelationship").val(memberInfo.EmergencyContactInfoRelationship);
+            $("#EmergencyContactInfoPhone").val(memberInfo.EmergencyContactInfoPhone);
+            $("#EmergencyContactInfoEmail").val(memberInfo.EmergencyContactInfoEmail);
+            $('#MemberStatus_listbox .k-item').eq(0).hide();
+            $('#MemberStatus_listbox .k-item').eq(2).hide();
+        });
+
+        $("#addMember").on('click', function () {
+            // configure modal
+            $("#submitAddMember").remove();           
+            $(".modal-footer").append('<input type="submit" class="btn-sm k-primary k-button" id="submitAddMember" value="Add Member" , tabindex = "23"/>')
+            $("#submitUpdateMember").remove();
+            $('.modal-title').text('Add Member');
+
+            // clear fields
+            $("#Gender").data("kendoComboBox").value('');
+            $("#MemberStatus").data("kendoComboBox").value('');
+            $("#ReferralType").data("kendoComboBox").value('');
+            $("#ShirtSize").data("kendoComboBox").value('');
+            $("#FirstName").val('');
+            $("#LastName").val('');
+            $("#Email").val('');
+            $("#Mbid").val('');
+            $("#Dob").val('');
+            $("#MobilePhone").val('');
+            $("#ScannerMobile").val('');
+            $("#WorkPhone").val('');
+            $("#HomePhone").val('');
+            $("#AddressLine1").val('');
+            $("#AddressLine2").val('');
+            $("#City").val('');
+            $("#State").val('');
+            $("#Country").val('');
+            $("#PostalCode").val('');
+            $("#EmergencyContactInfoName").val('');
+            $("#EmergencyContactInfoRelationship").val('');
+            $("#EmergencyContactInfoPhone").val('');
+            $("#EmergencyContactInfoEmail").val('');
+            $('#MemberStatus_listbox .k-item').eq(0).hide();
+            $('#MemberStatus_listbox .k-item').eq(2).hide();
+        });
+
+        $("body").on('click', '#submitUpdateMember', function () {
+            var validity = $('#newModalForm')[0].checkValidity();
+            if (validity) {
+                kendo.ui.progress($("#profile"), true);
+                var data = {
+                    StudioId: memberInfo.StudioId,
+                    MemberId: memberInfo.MemberId,
+                    Mbid: memberInfo.Mbid,
+                    Email: $("#Email").val(),
+                    GenderId: $("#Gender").data("kendoComboBox").value(),
+                    Gender: $("#Gender").data("kendoComboBox").text(),
+                    FirstName: $("#FirstName").val(),
+                    LastName: $("#LastName").val(),
+                    DisplayName: $("#FirstName").val() + " " + $("#LastName").val(),
+                    Dob: $("#Dob").val(),
+                    MemberStatusId: $("#MemberStatus").data("kendoComboBox").value(),
+                    Status: $("#MemberStatus").data("kendoComboBox").text(),
+                    MobilePhone: $("#MobilePhone").val(),
+                    ScannerMobile: $("#ScannerMobile").val(),
+                    WorkPhone: $("#WorkPhone").val(),
+                    HomePhone: $("#HomePhone").val(),
+                    AddressLine1: $("#AddressLine1").val(),
+                    AddressLine2: $("#AddressLine2").val(),
+                    City: $("#City").val(),
+                    State: $("#State").val(),
+                    Country: $("#Country").val(),
+                    PostalCode: $("#PostalCode").val(),
+                    EmergencyContactInfoName: $("#EmergencyContactInfoName").val(),
+                    EmergencyContactInfoRelationship: $("#EmergencyContactInfoRelationship").val(),
+                    EmergencyContactInfoPhone: $("#EmergencyContactInfoPhone").val(),
+                    EmergencyContactInfoEmail: $("#EmergencyContactInfoEmail").val(),
+                    SyncToMidnBody: $('[name="SyncToMidnBody"]').is(":checked"),
+                    ReferredBy: $("#ReferralType").data("kendoComboBox").text() == 'Other' ? $('#otherReferral').val() : $("#ReferralType").data("kendoComboBox").text(),
+                    ShirtSizeId: $("#ShirtSize").data("kendoComboBox").value()
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/Members/MemberProfile?handler=UpdateProfile",
+                    data: { memberInfo: data },
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded",
+                    headers: {
+                        RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (res) {
+                        kendo.ui.progress($("#profile"), false);
+                        if (res.success) {
+                            var dobdateOnly = (res.memberInfo.Dob != null || res.memberInfo.Dob == "")
+                                ? removeTime(res.memberInfo.Dob) : res.memberInfo.Dob;
+                            $("#firstName").val(res.memberInfo.FirstName);
+                            $("#lastName").val(res.memberInfo.LastName);
+                            $("#shirtSize").val(res.memberInfo.ShirtSize);
+                            $("#gender").val(res.memberInfo.Gender).attr('genderId', res.memberInfo.GenderId);;
+                            $("#dob").val(dobdateOnly);
+                            $("#mobileNo").val(res.memberInfo.MobilePhone);
+                            $("#scannerNo").val(res.memberInfo.ScannerMobile);
+                            $("#workNo").val(res.memberInfo.WorkPhone);
+                            $("#homeNo").val(res.memberInfo.HomePhone);
+                            $("#addressOne").val(res.memberInfo.AddressLine1);
+                            $("#addressTwo").val(res.memberInfo.AddressLine2);
+                            $("#city").val(res.memberInfo.City);
+                            $("#state").val(res.memberInfo.State);
+                            $("#country").val(res.memberInfo.Country);
+                            $("#postal").val(res.memberInfo.PostalCode);
+                            $("#cPerson").val(res.memberInfo.EmergencyContactInfoName);
+                            $("#cRelationship").val(res.memberInfo.EmergencyContactInfoRelationship);
+                            $("#cMobileNo").val(res.memberInfo.EmergencyContactInfoPhone);
+                            $("#cEmail").val(res.memberInfo.EmergencyContactInfoEmail);
+
+                            iziToast.success({
+                                title: 'Success',
+                                message: res.message,
+                            });
+                        } else {
+                            var message = "";
+                            $.each(res.errors, function () {
+                                message += this + "\n";
+                            });
+                            iziToast.error({
+                                title: 'Error',
+                                message: message,
+                                position: 'center',
+                                timeout: 10000,
+                            });
+                        }
+                        $("#MemberList").data("kendoListView").dataSource.read();
+                    },
+                    error: function () {
+                        iziToast.error({
+                            title: 'Error',
+                            message: 'Unable to update record. Please contact your system administrator.'
+                        });
+                    }
+                });
+            }
+        });
+
+        $("body").on('click', '#submitAddMember', function () {      
+            var validity = $('#newModalForm')[0].checkValidity(); 
+            if (validity) {
+                kendo.ui.progress($("#profile"), true);
+                var data = {
+                    StudioId: studioId,
+                    GenderId: $("#Gender").data("kendoComboBox").value(),
+                    Gender: $("#Gender").data("kendoComboBox").text(),
+                    FirstName: $("#FirstName").val(),
+                    LastName: $("#LastName").val(),
+                    DisplayName: $("#FirstName").val() + " " + $("#LastName").val(),
+                    Email: $("#Email").val(),
+                    Dob: $("#Dob").val(),
+                    MemberStatusId: $("#MemberStatus").data("kendoComboBox").value(),
+                    Status: $("#MemberStatus").data("kendoComboBox").text(),
+                    MobilePhone: $("#MobilePhone").val(),
+                    ScannerMobile: $("#ScannerMobile").val(),
+                    WorkPhone: $("#WorkPhone").val(),
+                    HomePhone: $("#HomePhone").val(),
+                    AddressLine1: $("#AddressLine1").val(),
+                    AddressLine2: $("#AddressLine2").val(),
+                    City: $("#City").val(),
+                    State: $("#State").val(),
+                    Country: $("#Country").val(),
+                    PostalCode: $("#PostalCode").val(),
+                    EmergencyContactInfoName: $("#EmergencyContactInfoName").val(),
+                    EmergencyContactInfoRelationship: $("#EmergencyContactInfoRelationship").val(),
+                    EmergencyContactInfoPhone: $("#EmergencyContactInfoPhone").val(),
+                    EmergencyContactInfoEmail: $("#EmergencyContactInfoEmail").val(),
+                    SyncToMidnBody: $('[name="SyncToMidnBody"]').is(":checked"),
+                    ReferredBy: $("#ReferralType").data("kendoComboBox").text() == 'Other'
+                                ? $('#otherReferral').val() : $("#ReferralType").data("kendoComboBox").text(),
+                    ShirtSizeId: $("#ShirtSize").data("kendoComboBox").value(),
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/Members/MemberProfile?handler=AddMember",
+                    data: { memberInfo: data },
+                    dataType: 'json',
+                    cache: false,
+                    contentType: "application/x-www-form-urlencoded",
+                    headers: {
+                        RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (res) {
+                        kendo.ui.progress($("#profile"), false);
+                        if (res.success) {
+                            iziToast.success({
+                                title: 'Success',
+                                message: res.message,
+                            });
+
+
+                        } else {
+                            var message = "";
+                            $.each(res.errors, function () {
+                                message += this + "\n";
+                            });
+                            iziToast.error({
+                                title: 'Error',
+                                message: message,
+                                position: 'center',
+                                timeout: 10000,
+                            });
+                        }
+                        $("#MemberList").data("kendoListView").dataSource.read();
+                    },
+                    error: function () {
+                        iziToast.error({
+                            title: 'Error',
+                            message: 'Unable to update record. Please contact your system administrator.'
+                        });
+                    }
+                });  
+            }
+        });
+
+        $("body").on('click', '.chkAchievement', function () {           
+            var achievementId = $(this).attr("id");
+            var IsClaimedRewards = $(this).is(':checked');
+            var data = {
+                achievementId: achievementId,
+                IsClaimedRewards: IsClaimedRewards
+            };
+
+            //Updated MemberAchievementReward
+            $.ajax({
+                type: "POST",
+                url: "/Members/MemberProfile?handler=UpdateClaimedRewards",
+                data: data,
+                dataType: 'json',
+                contentType: "application/x-www-form-urlencoded",
+                headers: { RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val() },
+                success: function (result) {                  
+                    iziToast.success({
+                        title: 'Success',
+                        message: result,
+                    });
+                },
+                error: function () {
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Unable to update record. Please contact your system administrator.'
+                    });
+                }
+            });
+        });
+    });
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+
+            iziToast.error({
+                title: 'Error',
+                message: message,
+                position: 'center'
+            });
+
+            var gridObject = $("#gridPaymentMethod").data("kendoGrid");
+            gridObject.dataSource.transport.options.read.url = "/Members/MemberProfile?handler=ReadPaymentMethod&studioId=" + studioId + "&memberId=" + memberId;
+            gridObject.dataSource.read();
+        }
+    }
+
+    function editPaymentMethod() {
+
+        var paymentMethod = $('#PaymentMethodTypeId').val();
+        var x = document.getElementById("paidByOther");
+        if (paymentMethod != 3 || paymentMethod == '') {
+            x.style.display = "none";
+
+        } else {
+            x.style.display = "block";
+        }
+    }
+
+    function onChangePaymentMethod() {
+        var paymentMethod = $('#PaymentMethodTypeId').val();
+        var x = document.getElementById("paidByOther");
+        if (paymentMethod == 3) {
+            x.style.display = "block";
+        } else {
+            x.style.display = "none";
+        }
+    }
+
+    function createChart() {
+        $.ajax({
+            type: "POST",
+            url: "/Members/MemberProfile?handler=ReadScanChart&memberId=" + memberId,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded",
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            success: function (result) {
+
+                $("#chart").kendoChart({
+                    legend: {
+                        position: "top"
+                    },
+                    chartArea: {
+                        background: "transparent",
+                        height:300
+                    },
+                    seriesDefaults: {
+                        type: "line",
+                        style: "smooth"
+                    },
+                    series: [{
+                            name: "InBodyScore",
+                            data: result.InBodyScore
+                    }, {
+                            name: "Weight",
+                            data: result.Weight
+                    },{
+                            name: "Percent Body Fat",
+                            data: result.Pbf
+                    },{
+                            name: "Skeletal Muscle Mass",
+                            data: result.Smm
+                    }, {
+                            name: "Visceral Fat Level",
+                            data: result.Vfl
+                    }],
+                    valueAxis: {
+                        labels: {
+                            format: "{0}%"
+                        },
+                        line: {
+                            visible: false
+                        },
+                        axisCrossingValue: -10
+                    },
+                    categoryAxis: {
+                        categories: result.TestDateTime,
+                        majorGridLines: {
+                            visible: false
+                        },
+                        labels: {
+                            rotation: "auto"
+                        }
+                    },
+                    tooltip: {
+                        visible: true,
+                        format: "{0}%",
+                        template: "#= series.name #: #= value #"
+                    }
+                });
+
+            },
+            error: function () {
+                iziToast.error({
+                    title: 'Error',
+                    message: 'Unable to update record. Please contact your system administrator.'
+                });
+            }
+        });
+    }
+
+    function change() {
+        var studio = $("#Studio").data("kendoDropDownList");
+        var status = $("#Status").data("kendoDropDownList");
+        studioId = studio.value();
+        statusId = status.value();
+
+        var listView = $("#MemberList").data("kendoListView");
+        listView.dataSource.transport.options.read.url = "/Members/MemberProfile?handler=Read&studioId=" + studioId + "&statusId=" + statusId;;
+        listView.dataSource.read();
+    }
+
+    function onErrorTab(e) {
+        kendoConsole.error("Loading failed with " + e.xhr.statusText + " " + e.xhr.status);
+    }
+
+    function onChangeStatus(e) {
+        var studio = $("#Studio").data("kendoDropDownList");
+        var status = $("#Status").data("kendoDropDownList");
+        studioId = studio.value();
+        statusId = status.value();
+
+        var listView = $("#MemberList").data("kendoListView");
+        listView.dataSource.transport.options.read.url = "/Members/MemberProfile?handler=Read&studioId=" + studioId + "&statusId=" + statusId;;
+        listView.dataSource.read();
+    }
+
+    function onStatusDataBound(e) {
+        var defaultItem = e.sender.dataSource.at(2); // set Active/suspended as default value
+        e.sender.value(defaultItem.MemberStatusId);
+        statusId = defaultItem.MemberStatusId;
+    }
+
+    function onListDataBound(e) {
+        this.select($(".member:first"));
+
+        $(".k-list-scroller").css('overflow-y', 'hidden');
+        $(".k-auto-scrollable").css('overflow-y', 'hidden');
+    }
+
+    function onCriteriaChange() {        
+        var memberList = $("#MemberList").data("kendoListView"),
+            member = memberList.dataSource.getByUid(memberList.select().attr("data-uid")),
+            template = kendo.template($("#memberBioTemplate").html());
+        filter = { MemberId: member.MbuniqueId },
+
+        memberId = member.MemberId;
+        uniquedId = member.MbuniqueId;
+        mbid = member.Mbid;
+        memberInfo = member;     
+
+        var dobdateOnly = (member.Dob != null || member.Dob == "") ? removeTime(member.Dob) : member.Dob;
+        var dob = dobdateOnly;
+
+        $("#firstName").val(member.FirstName);
+        $("#lastName").val(member.LastName);
+        $("#status").val(member.Status).attr('statusId', member.MemberStatusId);
+        $("#shirtSize").val(member.ShirtSize).attr('sizeId', member.ShirtSizeId);
+        $("#referral").val(member.ReferredBy);
+        $("#gender").val(member.Gender).attr('genderId', member.GenderId);
+        $("#dob").val(dob);
+        $("#mobileNo").val(member.MobilePhone);
+        $("#scannerNo").val(member.ScannerMobile);
+        $("#workNo").val(member.WorkPhone);
+        $("#homeNo").val(member.HomePhone);
+        $("#addressOne").val(member.AddressLine1);
+        $("#addressTwo").val(member.AddressLine2);
+        $("#city").val(member.City);
+        $("#state").val(member.State);
+        $("#country").val(member.Country);
+        $("#postal").val(member.PostalCode);
+        $("#cPerson").val(member.EmergencyContactInfoName);
+        $("#cRelationship").val(member.EmergencyContactInfoRelationship);
+        $("#cMobileNo").val(member.EmergencyContactInfoPhone);
+        $("#cEmail").val(member.EmergencyContactInfoEmail);
+
+        $("#memberBio").html(template(member));
+
+        //Select Profile tab when criteria change
+        $("#tabstrip").each(function (idx, elem) {
+            $(elem).kendoTabStrip({
+                animation: {
+                    open: {
+                        effects: "fadeIn"
+                    }
+                }
+            }).data("kendoTabStrip").select(0);
+        });
+    }
+
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function removeTime(date) {
+        var date = new Date(date);
+        var dateString = [
+            ("0" + date.getDate()).slice(-2),
+            ("0" + (date.getMonth() + 1)).slice(-2),
+            date.getFullYear()
+        ].join("-");
+        return dateString;
+    }
+
+    function initializeGrid(options) {
+        if (options === null || options === undefined) {
+            options = {
+                size: 0.55,
+                gridContentCss: ".k-grid-content",
+                gridLockedContentCss: ".k-grid-content-locked",
+                gridsToResize: []
+            };
+        }
+
+        var windowHeight = $(window).height() * options.size;
+
+        if (options.gridsToResize !== null && options.gridsToResize.length > 0) {
+            options.gridsToResize.forEach(function (item) {
+
+                var gridContent = $('#' + item + ' > ' + options.gridContentCss);
+                var lockedContent = $('#' + item + ' > ' + options.gridLockedContentCss);
+
+                gridContent.height(windowHeight);
+
+                if (lockedContent !== null && lockedContent !== undefined) {
+                    lockedContent.height(windowHeight);
+                }
+            });
+        }
+        else {
+            var gridContent = $(options.gridContentCss);
+            var lockedContent = $(options.gridLockedContentCss);
+
+            gridContent.height(windowHeight);
+
+            if (lockedContent !== null && lockedContent !== undefined) {
+                lockedContent.height(windowHeight);
+
+            }
+        }
+    }
+
+    function addCommas(nStr) {
+        nStr += '';
+        var x = nStr.split('.');
+        var x1 = x[0];
+        var x2 = x.length > 1 ? '.' + x[1] : '';
+        var rgx = /(\d+)(\d{3})/;
+        while (rgx.test(x1)) {
+            x1 = x1.replace(rgx, '$1' + ',' + '$2');
+        }
+        return x1 + x2;
+    }
+
+    function onDataBound(e) {
+        //position the add new button to the left.
+        $(".k-grid-toolbar").addClass("text-left");
+    }
+
+    function onGridSave(e) {
+
+        var data = e.sender.dataSource.data();
+        for (var i = 0; i < data.length; i++) {
+            var item = data[i]
+            item.set('MemberId', memberId);
+        }
+       
+        e.sender.one("dataBound", function () {
+            e.sender.dataSource.read();
+        });
+    }
+
+    function getVisitsSummation() {
+        
+        $.ajax({
+            type: "POST",
+            url: "/Members/MemberProfile?handler=ReadClientVisitsSummations&memberId=" + memberId,
+            dataType: 'json',
+            headers: { RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val() },
+            success: function (result) {    
+                $.each(result.rewards, function (index) {
+                    var visitCount = result.rewards[index].VisitCount;
+                    var memberAchievementId = result.rewards[index].MemberAchievementRewardId;
+                    var isClaimed = result.rewards[index].IsClaimed;
+                    $("#achievements").append('<div class="col-md-1 container achievement" style="width:10%;float:left;overflow:hidden;padding:0;"><div class="col-md-9" style ="width:100%;float:left;overflow:hidden;padding:0;"><img src="/images/badge1.png" style="width:1.5vw;height:auto;" /><div class="centered" style="font-size:0.5vw;">' + visitCount + '</div></div><div class="col-md-3" style="width:100%;float:left;overflow:hidden;padding:0;"><input type="checkbox" class="chkAchievement" id="' + memberAchievementId + '" ' + isClaimed +'  style="width:1vw;height:auto;"/></div></div>');                    
+                });                
+
+                $("#absences").val(result.totals.Absences);
+                $("#signedIn").val(result.totals.SignedIn);
+                $("#lateCancelled").val(result.totals.LateCancelled);
+                $("#totalVisits").val(result.totals.TotalVisits);
+            },
+            error: function () {
+                iziToast.error({
+                    title: 'Error',
+                    message: 'Unable to update record. Please contact your system administrator.'
+                });
+            }
+        });
+    }
+
+    function getTotalPurchases() {
+        $.ajax({
+            type: "POST",
+            url: "/Members/MemberProfile?handler=ReadClientTotalAmountPaid&memberId=" + memberId,
+            dataType: 'json',
+            headers: { RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val() },
+            success: function (result) {
+                $("#totalAmountPaid").val('$ ' + addCommas(result));
+            },
+            error: function () {
+                iziToast.error({
+                    title: 'Error',
+                    message: 'Unable to update record. Please contact your system administrator.'
+                });
+            }
+        });
+    }
+
+    function onSelectTab(e) {
+
+        var tabTitle = $(e.item).find("> .k-link").text()     
+
+        switch (tabTitle) {
+            case 'Profile':
+                $("#showDialogBtn").fadeIn();
+                break;
+            case 'Scans':
+                $("#showDialogBtn").fadeOut();
+                //populate member scans grid and chart
+                createChart();
+                var memberScan = $("#gridScan").data("kendoGrid")
+                memberScan.dataSource.transport.options.read.url = "/Members/MemberProfile?handler=ReadMemberScans&memberId=" + memberId;
+                memberScan.dataSource.read();
+                break;
+            case 'Membership':
+                $("#showDialogBtn").fadeOut();
+                //populate member membership grid
+                var memberMembership = $("#gridMembership").data("kendoGrid")
+                memberMembership.dataSource.transport.options.read.url = "/Members/MemberProfile?handler=ReadMembership&memberId=" + memberId;
+                memberMembership.dataSource.read();
+                break;
+            case 'Contracts':
+                $("#showDialogBtn").fadeOut();
+                  //populate member contracts grid
+                var memberContracts = $("#gridContracts").data("kendoGrid")
+                memberContracts.dataSource.transport.options.read.url = "/Members/MemberProfile?handler=ReadContract&memberId=" + memberId;
+                memberContracts.dataSource.read();
+                break;
+            case 'Visits':
+                $("#showDialogBtn").fadeOut();
+                $("div").remove(".container.achievement");
+                //populate member visits grid
+                getVisitsSummation();
+                var memberVisits = $("#gridVisits").data("kendoGrid")
+                memberVisits.dataSource.transport.options.read.url = "/Members/MemberProfile?handler=ReadVisits&memberId=" + memberId;
+                memberVisits.dataSource.read();                
+                break;
+            case 'Purchases':
+                $("#showDialogBtn").fadeOut();
+                //populate member PaymentMethod grid
+                var memberPaymentMethod = $("#gridPaymentMethod").data("kendoGrid")
+                memberPaymentMethod.dataSource.transport.options.read.url = "/Members/MemberProfile?handler=ReadPaymentMethod&studioId=" + studioId + "&memberId=" + memberId;
+                memberPaymentMethod.dataSource.read();
+                //populate member purchases grid
+                getTotalPurchases();
+                var memberPurchases = $("#gridPurchases").data("kendoGrid")
+                memberPurchases.dataSource.transport.options.read.url = "/Members/MemberProfile?handler=ReadPurchase&memberId=" + memberId;
+                memberPurchases.dataSource.read();
+                break;
+            case 'Challenges':
+                $("#showDialogBtn").fadeOut();
+                //populate member Challenge grid
+                var memberChallenges = $("#gridChallenges").data("kendoGrid")
+                memberChallenges.dataSource.transport.options.read.url = "/Members/MemberProfile?handler=ReadMemberChallenge&memberId=" + memberId;
+                memberChallenges.dataSource.read();
+                break;
+            default:
+                break;
+        }
+    }
+
+    function changeReferral() {      
+        var selected = this.text();
+        if (selected == 'Other') {
+            $('#personalProfile').append('<div class="col-md-6 col-sm-12 col-sx-12 text-left" id="divOtherReferral" ><span class="profile-label col-md-4 col-sm-12 col-sx-12"></span><input class="k-textbox profile-detail" id="otherReferral" required  style = "width:50%;" placeholder="type here..."></div>')
+
+        } else {
+            $('#divOtherReferral').remove();
+        }
+    }
+
+    function onGroupExpand(e) {
+        var ChallengeMemberId = e.sender.dataItem(e.masterRow).ChallengeMemberId
+        var data = {
+            ChallengeMemberId: ChallengeMemberId
+        };
+        $.ajax({
+            type: "POST",
+            url: "/Members/MemberProfile?handler=ReadImages",
+            data: data,
+            dataType: 'json',
+            contentType: "application/x-www-form-urlencoded",
+            headers: {
+                RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+            },
+            success: function (result) {
+                if (result != null) {
+                    $("#before-front-" + ChallengeMemberId).attr("src", result.BeforeFrontImage);
+                    $("#before-side-" + ChallengeMemberId).attr("src", result.BeforeSideImage);
+                    $("#before-back-" + ChallengeMemberId).attr("src", result.BeforeBackImage);
+                    $("#after-front-" + ChallengeMemberId).attr("src", result.AfterFrontImage);
+                    $("#after-side-" + ChallengeMemberId).attr("src", result.AfterSideImage);
+                    $("#after-back-" + ChallengeMemberId).attr("src", result.AfterBackImage);
+                }
+            },
+            error: function () {
+                iziToast.error({
+                    title: 'Error',
+                    message: 'Unable to update record. Please contact your system administrator.'
+                });
+            }
+        });
+    }
+
+</script>
+
+<style>
+    /*badge*/
+    .container {
+        position: relative;
+        font-family: Arial;
+        text-align: center;
+    }
+
+    .centered {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color:#fff;
+    }
+</style>
+

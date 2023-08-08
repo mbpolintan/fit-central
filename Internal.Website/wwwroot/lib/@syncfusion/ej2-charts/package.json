@@ -1,0 +1,68 @@
+{
+  "_from": "@syncfusion/ej2-charts@~18.2.48",
+  "_id": "@syncfusion/ej2-charts@18.2.48",
+  "_inBundle": false,
+  "_integrity": "sha512-44l2wkb+HMp67sXGXQhoA2qkvBHbJ5GiNW42C+QnsPNX9tjyxz7FpFpfgzVUg7Nyd2B2LIPX3NgROHB5QRDSHg==",
+  "_location": "/@syncfusion/ej2-charts",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-charts@~18.2.48",
+    "name": "@syncfusion/ej2-charts",
+    "escapedName": "@syncfusion%2fej2-charts",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.48",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.48"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2",
+    "/@syncfusion/ej2-office-chart",
+    "/@syncfusion/ej2-pivotview"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-charts/-/ej2-charts-18.2.48.tgz",
+  "_shasum": "6ae77eff84f1f405cabddf8fa7f4b21d27cadf1e",
+  "_spec": "@syncfusion/ej2-charts@~18.2.48",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.47",
+    "@syncfusion/ej2-calendars": "~18.2.44",
+    "@syncfusion/ej2-compression": "~18.2.48",
+    "@syncfusion/ej2-data": "~18.2.44",
+    "@syncfusion/ej2-file-utils": "~18.2.48",
+    "@syncfusion/ej2-navigations": "~18.2.47",
+    "@syncfusion/ej2-pdf-export": "~18.2.45",
+    "@syncfusion/ej2-svg-base": "~18.2.46"
+  },
+  "deprecated": false,
+  "description": "Feature-rich chart control with built-in support for over 25 chart types, technical indictors, trendline, zooming, tooltip, selection, crosshair and trackball.",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-charts.es2015.js",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "ej2-charts",
+    "datavisualization-components",
+    "TypeScript",
+    "chart",
+    "graph",
+    "financial-chart",
+    "stock-chart"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-charts.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-charts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/syncfusion/ej2-javascript-ui-controls/tree/master/controls/charts"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.48"
+}

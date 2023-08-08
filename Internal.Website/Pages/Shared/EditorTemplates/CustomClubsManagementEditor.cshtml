@@ -1,0 +1,16 @@
+﻿@*@model DataAccess.Models.AppUser*@
+@model DataAccess.ViewModels.ClubViewModel
+@using Kendo.Mvc.UI
+
+<label class="km-inline-field km-label-above" style="width:100%;">
+    <i> @(Html.LabelFor(model => model.VisitCount))</i>
+    @(Html.TextBoxFor(model => model.VisitCount, new { required = "required", style = "width:100%", type="number", @class = "k-textbox", data_bind = "value:VisitCount" }))
+</label>
+<label class="km-inline-field km-label-above" style="width:100%;">
+    @(Html.Kendo().DropDownListFor(model => model.StudioId)
+        .HtmlAttributes(new { required = "required", style = "width:100%;", data_value_primitive = "true" })
+        .OptionLabel("Select Studio...")
+        .DataValueField("StudioId")
+        .DataTextField("StudioName")
+        .DataSource(source => source.Read(read => read.Url("/StudioAdmin/ManagerAdmin?handler=ReadGlobalStudio"))))
+</label>

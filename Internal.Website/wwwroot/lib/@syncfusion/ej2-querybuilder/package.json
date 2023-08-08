@@ -1,0 +1,70 @@
+{
+  "_from": "@syncfusion/ej2-querybuilder@~18.2.47",
+  "_id": "@syncfusion/ej2-querybuilder@18.2.47",
+  "_inBundle": false,
+  "_integrity": "sha512-nNAg3yLYHapiSl4vavoOLkMcYWqSwVho1L2tMTqtWZlv7Sm1BafegCzCjJEH3je+C/J5csv962PFQzxmvG31uw==",
+  "_location": "/@syncfusion/ej2-querybuilder",
+  "_phantomChildren": {},
+  "_requested": {
+    "type": "range",
+    "registry": true,
+    "raw": "@syncfusion/ej2-querybuilder@~18.2.47",
+    "name": "@syncfusion/ej2-querybuilder",
+    "escapedName": "@syncfusion%2fej2-querybuilder",
+    "scope": "@syncfusion",
+    "rawSpec": "~18.2.47",
+    "saveSpec": null,
+    "fetchSpec": "~18.2.47"
+  },
+  "_requiredBy": [
+    "/@syncfusion/ej2"
+  ],
+  "_resolved": "https://registry.npmjs.org/@syncfusion/ej2-querybuilder/-/ej2-querybuilder-18.2.47.tgz",
+  "_shasum": "12f13418493b37a774583c2a25e91367b8ae2b96",
+  "_spec": "@syncfusion/ej2-querybuilder@~18.2.47",
+  "_where": "C:\\Users\\JCP\\Downloads\\SyncFusion\\node_modules\\@syncfusion\\ej2",
+  "author": {
+    "name": "Syncfusion Inc."
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@syncfusion/ej2-base": "~18.2.47",
+    "@syncfusion/ej2-buttons": "~18.2.44",
+    "@syncfusion/ej2-calendars": "~18.2.44",
+    "@syncfusion/ej2-dropdowns": "~18.2.47",
+    "@syncfusion/ej2-inputs": "~18.2.47",
+    "@syncfusion/ej2-splitbuttons": "~18.2.44"
+  },
+  "deprecated": false,
+  "description": "Essential JS 2 QueryBuilder",
+  "devDependencies": {},
+  "es2015": "./dist/es6/ej2-querybuilder.es2015.js",
+  "keywords": [
+    "ej2",
+    "syncfusion",
+    "web-components",
+    "javascript",
+    "typescript",
+    "query-builder",
+    "ej2-query-builder",
+    "ej2-querybuilder",
+    "js querybuilder",
+    "js query builder",
+    "query builder js",
+    "query builder",
+    "javascript querybuilder",
+    "typescript querybuilder",
+    "querybuilder"
+  ],
+  "license": "SEE LICENSE IN license",
+  "main": "./dist/ej2-querybuilder.umd.min.js",
+  "module": "./index.js",
+  "name": "@syncfusion/ej2-querybuilder",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/syncfusion/ej2-javascript-ui-controls/tree/master/controls/querybuilder"
+  },
+  "sideEffects": false,
+  "typings": "index.d.ts",
+  "version": "18.2.47"
+}

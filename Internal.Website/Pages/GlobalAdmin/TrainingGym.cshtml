@@ -1,0 +1,140 @@
+﻿@page
+@model Internal.Website.TrainingGymModel
+@using Kendo.Mvc.UI
+@using DataAccess.Models
+@{ ViewData["Title"] = "Parent Studios Management"; }
+<div class="bg-light">
+    <div class="col text-left">
+        <h4 class="k-primary">
+            <small class="k-text-primary">@ViewData["Title"]</small>
+        </h4>
+    </div>
+    @Html.AntiForgeryToken()
+    @(Html.Kendo().Grid<GlobalTrainingGym>()
+            .Name("gridTrainingGym")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.GymName).HeaderHtmlAttributes(new { style = "text-align:center" });
+                columns.Command(c =>
+                {
+                    c.Edit().Text(" ").IconClass("k-icon k-i-edit").HtmlAttributes(new { style = "align-text:center" });
+                    c.Destroy().Text(" ").IconClass("k-icon k-i-delete").HtmlAttributes(new { style = "align-text:center" });
+                }).Title("Actions").Width("15%").HtmlAttributes(new { @class = "text-center" }).HeaderHtmlAttributes(new { @class = "text-center" });
+            })
+            .ToolBar(tb =>
+            {
+                tb.Create().Text("&nbsp;Add Parent Studio").IconClass("k-icon .k-i-globe");
+                tb.Search();
+            })
+            .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("CustomTrainingGymEditor").Window(w => w.Title("New Parent Studio")))
+            .Navigatable().Sortable().Mobile()
+            .Filterable(filterable => filterable.Extra(false).Operators(operators => operators
+                    .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+            .Events(e => e.DataBound("onDataBound").SaveChanges("onGridSave"))                    
+            .Scrollable(scr => scr.Height(500))
+            .HtmlAttributes(new { style = "height:100%; width:auto; font-size:13px;" })
+            .ClientDetailTemplateId("template")
+            .Pageable(p => p.ButtonCount(5).PageSizes(true))
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .PageSize(20)
+                .Events(events => events.Error("error_handler"))
+                .Model(model => model.Id(p => p.GlobalTrainingGymId))
+                .Read(r => r.Url("/GlobalAdmin/TrainingGym?handler=Read").Data("forgeryToken"))
+                .Create(c => c.Url("/GlobalAdmin/TrainingGym?handler=Create").Data("forgeryToken"))
+                .Update(u => u.Url("/GlobalAdmin/TrainingGym?handler=Update").Data("forgeryToken"))
+                .Destroy(u => u.Url("/GlobalAdmin/TrainingGym?handler=Destroy").Data("forgeryToken"))))
+</div>
+
+<script id="template" type="text/kendo-tmpl">
+    @Html.AntiForgeryToken()
+    @(Html.Kendo().Grid<GlobalStudio>()
+        .Name("grid_#=GlobalTrainingGymId#")
+        .Columns(columns =>
+        {
+            columns.ForeignKey(o => o.StudioId, (System.Collections.IEnumerable)ViewData["studios"], "StudioId", "StudioName")
+            .Title("Studio Name").Width("90%");
+            columns.Command(c => c.Destroy().Text(" ").IconClass("k-icon k-i-delete").HtmlAttributes(new { style = "align-text:center" }))
+            .Title("Remove").HtmlAttributes(new { @class = "text-center" }).HeaderHtmlAttributes(new { @class = "text-center" });
+        })
+        .ToolBar(tb =>tb.Create().Text("New Studio").IconClass("k-icon .k-i-marker-pin"))
+        .Editable(editable => editable.Mode(GridEditMode.PopUp).TemplateName("CustomGlobalStudioEditor").Window(w => w.Title("Assign New Studio")))
+        .Navigatable().Sortable().Filterable().Mobile()
+        .Scrollable(scr => scr.Height(150))
+        .HtmlAttributes(new { style = "height:auto; width:auto; font-size:13px;" })
+        .Pageable(p => p.ButtonCount(5).PageSizes(true))
+        .DataSource(dataSource => dataSource
+            .Ajax()
+            .PageSize(10)
+            .Events(events => events.Error("error_handlerStudio"))
+            .Read(r => r.Url("/GlobalAdmin/TrainingGym?handler=ReadStudio&trainingGymId=#=GlobalTrainingGymId#").Data("forgeryToken"))
+            .Create(r => r.Url("/GlobalAdmin/TrainingGym?handler=CreateStudio&trainingGymId=#=GlobalTrainingGymId#").Data("forgeryToken"))          
+            .Destroy(d => d.Url("/GlobalAdmin/TrainingGym?handler=DestroyStudio").Data("forgeryToken"))
+            .Model(m => m.Id(id => id.GlobalTrainingGymId)))
+        .ToClientTemplate())
+</script>
+
+
+<script type="text/javascript">
+
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function error_handler(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            iziToast.error({
+                title: 'Error',
+                message: message,
+                position: 'center'
+            });
+
+            var gridObject = $("#gridTrainingGym").data("kendoGrid");
+            gridObject.dataSource.transport.options.read.url = "/GlobalAdmin/TrainingGym?handler=Read";
+            gridObject.dataSource.read();
+        }
+    }
+
+    function error_handlerStudio(e) {
+        if (e.errors) {
+            var message = "";
+            $.each(e.errors, function (key, value) {
+                if ('errors' in value) {
+                    $.each(value.errors, function () {
+                        message += this + "\n";
+                    });
+                }
+            });
+            console.log(message);
+            iziToast.error({
+                title: 'Error',
+                message: 'Studio already exist.',
+                position: 'center'
+            });
+
+            var gridObject = $("#grid_" + message).data("kendoGrid");
+            gridObject.dataSource.transport.options.read.url = "/GlobalAdmin/TrainingGym?handler=ReadStudio&trainingGymId=" + message;
+            gridObject.dataSource.read();
+        }
+    }
+
+    function onDataBound() {
+        //position the add new button to the left.
+        $(".k-grid-toolbar").addClass("text-left");
+    }
+
+    function onGridSave(e) {
+        var gridObject = $("#gridTrainingGym").data("kendoGrid");
+        gridObject.dataSource.transport.options.read.url = "/GlobalAdmin/TrainingGym?handler=Read";
+        gridObject.dataSource.read();
+    }
+    
+</script>

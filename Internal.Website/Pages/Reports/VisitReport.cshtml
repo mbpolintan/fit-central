@@ -1,0 +1,427 @@
+﻿@page
+@model Internal.Website.VisitReportModel
+@using DataAccess.ViewModels
+@using DataAccess.Models
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{ ViewData["Title"] = "Visits Report"; }
+
+<div class="bg-light">   
+    <div class="col-md-12">
+        <div class="col text-left">
+            <h4 class="k-primary">
+                <small class="k-text-primary">@ViewData["Title"]</small>
+            </h4>
+        </div>
+        <div class="col-md-8 text-left" style="padding:0.5em">
+            @Html.Label("Studios: ")
+            @(Html.Kendo().DropDownList()
+                .Name("Studio")
+                .DataTextField("StudioName")
+                .DataValueField("StudioId")
+                .Events(e => e.Change("onChange"))
+                .BindTo((System.Collections.IEnumerable)ViewData["Studios"])
+                .HtmlAttributes(new { style = "width:25%;", @class= "col-md-6 col-sm-12" }))
+            @Html.Label("Date Filter: ")
+            @(Html.Kendo().DropDownList()
+                .Name("DateFilter")
+                .DataTextField("Description")
+                .DataValueField("DateFilterId")
+                .Events(e => e.Change("onChange"))
+                .BindTo((System.Collections.IEnumerable)ViewData["dateFilter"])
+                .HtmlAttributes(new { style = "width:25%;", @class = "col-md-6 col-sm-12" })
+                .Value("1"))
+            @Html.Label("Status: ")
+            @(Html.Kendo().DropDownList()
+                .Name("Status")
+                .DataTextField("Status")
+                .DataValueField("MemberStatusId")
+                .Events(e => e.Change("onChange"))
+                .BindTo((System.Collections.IEnumerable)ViewData["Status"])
+                .HtmlAttributes(new { style = "width:25%;", @class = "col-md-6 col-sm-12" })
+                .Value("7"))
+        </div>
+        @Html.AntiForgeryToken()
+        @(Html.Kendo().Grid<DataAccess.ViewModels.VisitsReportViewModel>()
+            .Name("grdMembers")
+            .Columns(columns =>
+            {
+                columns.Bound(c => c.DisplayName).Width("15%").Title("Name")
+                    .HeaderHtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(c => c.SignedIn).Title("Total Attendance").Filterable(false)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" })
+                    .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(c => c.TotalVisits).Filterable(false).Format("{0:d}").Title("Total Booking")
+                    .HeaderHtmlAttributes(new { style = "text-align:center" })
+                    .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(c => c.AbsencesCancelled)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" })
+                    .HtmlAttributes(new { style = "text-align:right" });
+                columns.Bound(c => c.LateCancelled)
+                    .HeaderHtmlAttributes(new { style = "text-align:center" })
+                    .HtmlAttributes(new { style = "text-align:right" });
+            })
+            .ToolBar(tb =>
+            {
+                tb.Search();
+                tb.Excel();
+                tb.Custom().Text("&nbsp;&nbsp;Validate Visits").IconClass("fas fa-universal-access").HtmlAttributes(new { id = "validateVisits" });
+                //tb.Custom().Text("&nbsp;&nbsp;Get Visits").IconClass("fas fa-universal-access").HtmlAttributes(new { id = "getVisits" });
+            })
+            .Excel(excel => excel.Filterable(true).AllPages(true))
+            .Pageable(p => p.ButtonCount(5).PageSizes(true))
+            .ClientDetailTemplateId("visitsTemplate")
+            .Navigatable().Sortable().Scrollable().Mobile()
+            .Filterable(filterable => filterable.Extra(false)
+                .Operators(operators => operators.ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+            .HtmlAttributes(new { style = "height:100%;font-size:13px;" })
+            .Events(events => events.DataBound("onDataBound").ExcelExport("onExportToExcelAll").DetailExpand("onGroupExpand"))
+            .Search(search => search.Field(f => f.DisplayName))
+            .DataSource(ds => ds.Ajax()
+                .PageSize(20)
+                .Read(r => r.Url("").Data("forgeryToken"))
+                .Model(m => m.Id(id => id.MemberId))
+                .ServerOperation(false)))
+    </div>
+ 
+</div>
+
+<script id="visitsTemplate" type="text/kendo-tmpl">
+    <div>
+        @Html.AntiForgeryToken()
+        @(Html.Kendo().Grid<VwVisits>()
+            .Name("grid_#=MemberId#")
+            .Columns(columns =>
+            {
+                columns.Bound(e => e.StartDateTime).Format("{0:d}").Title("Date")
+                .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(e => e.Time).Title("Time")
+                .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(e => e.Description).Title("Description")
+                .HeaderHtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(e => e.Teacher).Title("Teacher")
+                .HeaderHtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(e => e.Status).Title("Status")
+                .HeaderHtmlAttributes(new { style = "text-align:center" });
+                columns.Bound(e => e.PaymentInfo).Title("Service")
+                .HeaderHtmlAttributes(new { style = "text-align:center" });
+            })
+            .Navigatable().Sortable().Mobile()
+            .ToolBar(tb => tb.Excel())
+            .Excel(excel => excel.Filterable(true).AllPages(true))
+            .Filterable(filterable => filterable
+                .Extra(false).Operators(operators => operators
+                    .ForString(str => str.Clear().StartsWith("Starts with").IsEqualTo("Is equal to").IsNotEqualTo("Is not equal to"))))
+            .Scrollable(sc => sc.Endless(true))
+            .Events(events => events.DataBound("onDataBound").ExcelExport("onExportToExcelMember"))
+            .HtmlAttributes(new { style = "width:100%;height:500px; font-size:13px; padding:0" })
+            .DataSource(dataSource => dataSource
+                .Ajax()
+                .Read(r => r.Url("/Reports/VisitReport?handler=ReadMemberVisits&memberId=#=MemberId#" ).Data("forgeryToken")))
+            .ToClientTemplate())
+    </div>
+</script>
+
+<div id="ValidateVisits" style="display:none">
+    <div class="col-md-12" style="float:none; margin:auto;">
+        <label class="km-inline-field km-label-above" style="width:100%;">
+            @Html.Label("Date From: ")
+            @(Html.Kendo().DatePicker()
+                .Name("DateFrom")
+                .Value(DateTime.Now.AddMonths(-3))
+                .Animation(true)
+                .HtmlAttributes(new { style = "width:100%;float:left;overflow:hidden;", title = "Visit's Date From" })
+                .DateInput())
+        </label>
+        <label class="km-inline-field km-label-above" style="width:100%;">
+            @Html.Label("Date To: ")
+            @(Html.Kendo().DatePicker()
+                .Name("DateTo")
+                .Value(DateTime.Now)
+                .Animation(true)
+                .HtmlAttributes(new { style = "width:100%;float:left;overflow:hidden;", title = "Visit's Date To" })
+                .DateInput())
+        </label>
+        @(Html.Kendo().Button()
+            .Name("Validate")
+            .HtmlAttributes(new { type = "button", @class = "k-primary" })
+            .Content("Update")
+            .Events(ev => ev.Click("onClickValidateVisits")))
+        @* add grid for validate visit grid *@
+    <div>
+        @(Html.Kendo().Grid<ValidateVisit>()
+            .Name("gridVisitsUpdates")
+            .Columns(columns =>
+            {
+
+                columns.Group(group => group.Title("Last Updated Date Range").HeaderHtmlAttributes(new { style = "text-align:center" })
+                .Columns(info =>
+                {
+                    info.Bound(e => e.FromDateValidation).Format("{0:d}").Title("Date From")
+                    .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                    info.Bound(e => e.ToDateValidation).Format("{0:d}").Title("Date To")
+                    .HtmlAttributes(new { style = "text-align:center" }).HeaderHtmlAttributes(new { style = "text-align:center" });
+                }));
+
+            })
+            .Navigatable().Sortable().Mobile()
+            .Scrollable(sc => sc.Endless(true))
+            .Events(events => events.DataBound("onDataBound"))
+            .HtmlAttributes(new { style = "width:100%;height:500px; font-size:13px; padding:0" })
+            .DataSource(ds => ds.Ajax()
+                .PageSize(20)
+                .Read(r => r.Url("").Data("forgeryToken"))
+                .Model(m => m.Id(id => id.ValidateVisitId))
+                .ServerOperation(false)))
+    </div>
+       
+
+    </div>
+</div>
+
+<script>
+    var studioId = 0;
+    var dateFilterId = 0;
+    var statusId = 0;
+    var memberName = '';
+
+    var KendoWindowManager = {
+        InitKendoWindow: function () {
+
+            $('#ValidateVisits').kendoWindow({
+                title: "Validate Visits",
+                width: "30%",
+                modal: true,
+                actions: ["Close"],
+                visible: false
+            });
+
+        }
+    }
+
+    function onGroupExpand(e) {
+        memberName = e.sender.dataItem(e.masterRow).DisplayName;     
+    }
+
+    function onChange() {
+        var studiolist = $("#Studio").data("kendoDropDownList");
+        var statuslist = $("#Status").data("kendoDropDownList");
+        var datelist = $("#DateFilter").data("kendoDropDownList");
+
+        studioId = studiolist.value();
+        statusId = statuslist.value();
+        dateFilterId = datelist.value();
+
+        var gridObject = $("#grdMembers").data("kendoGrid");
+        gridObject.dataSource.transport.options.read.url = "/Reports/VisitReport?handler=Read&studioId=" + studioId + "&dateFilterId=" + dateFilterId + "&statusId=" + statusId;
+        gridObject.dataSource.read();
+    }
+
+    function reloadPage() {
+        location.reload(true);
+    }
+
+    function onDataBound(e) {
+        //position the add new button to the left.
+        $(".k-grid-toolbar").addClass("text-left");
+
+        var data = $("#grdMembers").data("kendoGrid").dataSource.view();
+        if (data.length > 0) {
+            $("#getVisits").hide();            
+        } else {
+            $("#getVisits").show();          
+        }
+    }
+
+    function forgeryToken() {
+        return kendo.antiForgeryTokens();
+    }
+
+    function onClickValidateVisits() {
+
+        kendo.confirm("Are you sure that you want to proceed?").then(function () {
+
+            var grid = $("#grdMembers").data("kendoGrid");
+            kendo.ui.progress(grid.element, true);
+            iziToast.warning({
+                title: 'Synching Data',
+                message: "Please wait.... ",
+                position: 'center'
+            });
+
+
+            var studioId = $("#Studio").data("kendoDropDownList").value();
+            var StartValue = $("#DateFrom").data("kendoDatePicker").value();
+            var EndValue = $("#DateTo").data("kendoDatePicker").value();
+
+            var dateFrom = (StartValue.getDate()) + "/" + (StartValue.getMonth() + 1) + "/" + (StartValue.getFullYear());
+            var dateTo = (EndValue.getDate()) + "/" + (EndValue.getMonth() + 1) + "/" + (EndValue.getFullYear());
+
+            var data = {
+                studioId,              
+                dateFrom,
+                dateTo,
+                statusId
+            }
+
+            $.ajax({
+                type: "POST",
+                url: "/Reports/VisitReport?handler=ValidateVisits",
+                data: data,
+                dataType: 'json',
+                contentType: "application/x-www-form-urlencoded",
+                headers: {
+                    RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                },
+                success: function (res) {
+                    if (res.success) {
+                        iziToast.success({
+                            title: 'Success',
+                            message: res.message,
+                        });
+                    } else {
+                        iziToast.error({
+                            title: 'Error',
+                            message: res.message
+                        });
+                    }
+                    var wnd = $("#ValidateVisits").data("kendoWindow");
+                    wnd.close();
+
+                    kendo.ui.progress(grid.element, false);
+                    grid.dataSource.transport.options.read.url = "/Reports/VisitReport?handler=Read&studioId=" + studioId + "&dateFilterId=" + dateFilterId + "&statusId=" + statusId;
+                    grid.dataSource.read();
+                },
+                error: function () {
+                    iziToast.error({
+                        title: 'Error',
+                        message: 'Unable to update record. Please contact your system administrator.'
+                    });
+                }
+            });
+        });
+    }
+
+    function onExportToExcelAll(e) {
+        var d = new Date();
+        var dateToday = d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+
+        e.workbook.fileName = dateToday + "-VisitsReport.xlsx";
+        var sheet = e.workbook.sheets[0];
+        var columns = sheet.columns;
+        columns.forEach(function (column) {
+            // also delete the width if it is set
+            delete column.width;
+            column.autoWidth = true;
+        });
+
+        sheet.frozenRows = 2;
+        sheet.mergedCells = ["A1:E1"];
+        sheet.name = "Visits";
+
+        var myHeaders = [{
+            value: "Visits Report",
+            fontSize: 25,
+            textAlign: "left",
+            background: "#ff3700",
+            color: "#ffffff"
+        }];
+
+        sheet.rows.splice(0, 0, { cells: myHeaders, type: "header", height: 50 });
+    }
+
+    function onExportToExcelMember(e) {
+        var d = new Date();
+        var dateToday = d.getDate() + "/" + (d.getMonth() + 1) + "/" + d.getFullYear();
+
+        e.workbook.fileName = memberName + "-VisitsReport.xlsx";
+        var sheet = e.workbook.sheets[0];
+        var columns = sheet.columns;
+        columns.forEach(function (column) {
+            // also delete the width if it is set
+            delete column.width;
+            column.autoWidth = true;
+        });
+
+        sheet.frozenRows = 2;
+        sheet.mergedCells = ["A1:F1"];
+        sheet.name = memberName + " Visits";
+
+        var myHeaders = [{
+            value: memberName + " Visits",
+            fontSize: 25,
+            textAlign: "left",
+            background: "#ff3700",
+            color: "#ffffff"
+        }];
+
+        sheet.rows.splice(0, 0, { cells: myHeaders, type: "header", height: 50 });
+    }
+   
+
+    $(document).ready(function () {
+
+        var studioName = '@Model.SelectedStudio.StudioName';
+        studioId = '@Model.SelectedStudio.StudioId';
+        var dropdownlist = $("#Studio").data("kendoDropDownList");
+        dropdownlist.text(studioName);
+        dropdownlist.value(studioId);
+        dropdownlist.trigger("change");
+
+        dateFilterId = $("#DateFilter").data("kendoDropDownList").value();
+        statusId = $("#Status").data("kendoDropDownList").value();
+
+        KendoWindowManager.InitKendoWindow();
+
+        $('body').on('click', '#validateVisits', function () {
+            var wnd = $("#ValidateVisits").data("kendoWindow");
+            wnd.center().open();
+            var grid = $("#gridVisitsUpdates").data("kendoGrid");
+            grid.dataSource.transport.options.read.url = "/Reports/VisitReport?handler=VisitsUpdates&studioId=" + studioId;
+            grid.dataSource.read();
+        });
+
+        $('body').on('click', '#getVisits', function () {
+            kendo.confirm("Are you sure that you want to proceed?").then(function () {
+                var grid = $("#grdMembers").data("kendoGrid");
+
+                var data = {
+                    studioId: studioId,
+                    statusId: statusId 
+                }               
+                kendo.ui.progress(grid.element, true);
+                iziToast.warning({
+                    title: 'Synching Data',
+                    message: "Please wait.... ",
+                    position: 'center'
+                });
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Reports/VisitReport?handler=GetVisits",
+                    data: data,
+                    dataType: 'json',
+                    contentType: "application/x-www-form-urlencoded",
+                    headers: {
+                        RequestVerificationToken: $('input:hidden[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function (result) {                       
+                        iziToast.success({
+                            title: 'Success',
+                            message: "Members visits has been successfully initialized.",
+                        });
+                        kendo.ui.progress(grid.element, false);                     
+                        grid.dataSource.transport.options.read.url = "/Reports/VisitReport?handler=Read&studioId=" + studioId + "&dateFilterId=" + dateFilterId + "&statusId=" + statusId;
+                        grid.dataSource.read();
+                    },
+                    error: function () {
+                        iziToast.error({
+                            title: 'Error',
+                            message: 'Unable to update record. Please contact your system administrator.'
+                        });
+                    }
+                });
+            });
+        });
+    });
+
+</script>
